@@ -25,6 +25,8 @@ export class Game {
     this.numberOfObstacles = 10;
     this.obstacles = [];
 
+    this.activeBullets = [];
+
     this.fps = 80;
     this.timer = 0;
     this.interval = 1000 / this.fps;
@@ -33,26 +35,47 @@ export class Game {
       x: this.width / 2,
       y: this.height / 2,
       pressed: false,
+      liveAngle: 0,
     };
 
     this.canvas.addEventListener("mousedown", (event) => {
-      this.mouseStatus.x = event.offsetX - this.cameraX;
-      this.mouseStatus.y = event.offsetY - this.cameraY;
-      this.mouseStatus.pressed = true;
+      if (event.button === 0) {
+        this.mouseStatus.x = event.offsetX - this.cameraX;
+        this.mouseStatus.y = event.offsetY - this.cameraY;
+        this.mouseStatus.pressed = true;
+      }
     });
+
     this.canvas.addEventListener("mouseup", (event) => {
-      this.mouseStatus.x = event.offsetX - this.cameraX;
-      this.mouseStatus.y = event.offsetY - this.cameraY;
-      this.mouseStatus.pressed = false;
+      if (event.button === 0) {
+        this.mouseStatus.x = event.offsetX - this.cameraX;
+        this.mouseStatus.y = event.offsetY - this.cameraY;
+        this.mouseStatus.pressed = false;
+      }
     });
 
     this.canvas.addEventListener("mousemove", (event) => {
-      if (!this.mouseStatus.pressed) return;
-      this.mouseStatus.x = event.offsetX - this.cameraX;
-      this.mouseStatus.y = event.offsetY - this.cameraY;
-      this.mouseStatus.pressed = true;
+      if (event.button === 0 && this.mouseStatus.pressed) {
+        this.mouseStatus.x = event.offsetX - this.cameraX;
+        this.mouseStatus.y = event.offsetY - this.cameraY;
+        this.mouseStatus.pressed = true;
+      }
+    });
+
+    this.canvas.addEventListener("contextmenu", (event) => {
+      event.preventDefault();
+      //стрельба видимо
+      this.player.gun.shot();
+    });
+
+    this.canvas.addEventListener("mousemove", (event) => {
+      this.mouseStatus.liveAngle = Math.atan2(
+        event.offsetX - this.cameraX - this.player.collisionX,
+        event.offsetY - this.cameraY - this.player.collisionY
+      );
     });
   }
+
   render(context, deltaTime) {
     if (this.timer > this.interval) {
       context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -66,12 +89,17 @@ export class Game {
         en.update();
       });
       this.obstacles.forEach((obs) => obs.draw(context));
+      this.activeBullets.forEach((bullet) => {
+        bullet.update();
+        bullet.draw(context);
+      });
       this.boxes.forEach((obs) => {
         obs.draw(context);
         obs.update();
       });
-      this.player.draw(context);
       this.player.update();
+      this.player.draw(context);
+
       context.translate(-this.cameraX, -this.cameraY);
     }
     this.timer += deltaTime;
@@ -87,7 +115,7 @@ export class Game {
       this.boxTimer += deltaTime;
     }
   }
-  
+
   addBox() {
     this.boxes.push(new MovingBarrier(this));
   }

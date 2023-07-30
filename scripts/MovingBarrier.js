@@ -9,12 +9,6 @@ export class MovingBarrier extends NonStaticGameObjects {
     super.draw(context, "brown", 0.6);
   }
   update() {
-    super.update(this.game.player,this.game.globalSolidObjects);
-    //
-    //
-
-
-    //
-    //
+    super.update(this.game.player, this.game.obstacles); //чтоб мобы не толкали(this.game.obstacles)
   }
 }

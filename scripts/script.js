@@ -26,8 +26,8 @@ window.addEventListener("load", function () {
   function animate(timeStamp) {
     const deltaTime = timeStamp - lastTime;
     lastTime = timeStamp;
-
     game.render(context, deltaTime);
+    
     window.requestAnimationFrame(animate);
   }
 
