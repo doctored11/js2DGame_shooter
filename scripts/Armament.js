@@ -64,5 +64,6 @@ export class Armament {
 
     // Добавьте созданную пулю в массив активных пуль вашей игры
     this.game.activeBullets.push(bullet);
+    
   }
 }

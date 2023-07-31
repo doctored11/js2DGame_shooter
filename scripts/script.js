@@ -1,7 +1,6 @@
-
 import { Player } from "./Player.js";
 import { Enemy } from "./Enemy.js";
-import{Obstacle} from './Obstacle.js'
+import { Obstacle } from "./Obstacle.js";
 import { MovingBarrier } from "./MovingBarrier.js";
 import { Game } from "./Game.js";
 
@@ -13,8 +12,7 @@ window.addEventListener("load", function () {
 
   context.fillStyle = "red"; //
   context.strokeStyle = "black";
-  context.lineWidth = 3;
-
+  context.lineWidth = 5;
 
   const game = new Game(canvas);
   game.init();
@@ -27,9 +25,20 @@ window.addEventListener("load", function () {
     const deltaTime = timeStamp - lastTime;
     lastTime = timeStamp;
     game.render(context, deltaTime);
-    
+
     window.requestAnimationFrame(animate);
   }
 
   animate(0);
+
+  //
+  function updateCanvasSize() {
+    // Устанавливаем размер холста равным размеру окна браузера
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  updateCanvasSize();
+  window.addEventListener("resize", () => {
+    updateCanvasSize();
+  });
 });

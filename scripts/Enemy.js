@@ -5,8 +5,14 @@ export class Enemy extends AliveObject {
     super(game);
     this.game = game;
     this.collisionRadius = 30;
-    this.collisionX = this.game.width;
-    this.collisionY = Math.random() * this.game.height;
+
+    this.collisionX =
+      Math.random() * (this.game.spawnX - -this.game.spawnX) +
+      -this.game.spawnX;
+    this.collisionY =
+      Math.random() * (this.game.spawnY - -this.game.spawnY) +
+      -this.game.spawnY;
+
     this.speed = Math.random() * 2.8 + 0.2;
   }
   draw(context) {
@@ -14,6 +20,10 @@ export class Enemy extends AliveObject {
   }
   update() {
     super.update(this.game.player, this.game.globalSolidObjects);
+
+    if (this.healPoint <= 0) {
+      this.destroy(this.game.enemies);
+    }
 
     AliveObject.idleStatusCheck(400, this, [this.game.player]);
   }

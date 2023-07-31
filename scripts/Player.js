@@ -3,7 +3,13 @@ import { Armament } from "./Armament.js";
 
 export class Player extends AliveObject {
   constructor(game) {
-    super(game, game.width / 2, game.height / 2, 25, 2.5);
+    super(
+      game,
+      Math.random() * (game.spawnX - -game.spawnX) + -game.spawnX,
+      Math.random() * (game.spawnY - -game.spawnY) + -game.spawnY,
+      25,
+      2.5
+    );
     this.gun = new Armament(game);
   }
   draw(context) {

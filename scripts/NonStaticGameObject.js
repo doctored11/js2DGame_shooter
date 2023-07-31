@@ -2,7 +2,6 @@ import { GameObject } from "./GameObject.js";
 
 export class NonStaticGameObjects extends GameObject {
   constructor(game, posX, posY, collisionRadius) {
-    console.log(posX, posY, "1");
     super(game, posX, posY, collisionRadius);
   }
 
@@ -21,5 +20,13 @@ export class NonStaticGameObjects extends GameObject {
           obj.collisionY + (collisionStatus.sumOfRad + 1) * unit_y;
       }
     });
+    this.borderLimit(1);
+  }
+  destroy(arrayOfAlivesType) {
+    const indexInLocal = arrayOfAlivesType.indexOf(this);
+    const indexInGlobal = this.game.globalSolidObjects.indexOf(this);
+
+    arrayOfAlivesType.splice(indexInLocal, 1);
+    this.game.globalSolidObjects.splice(indexInGlobal, 1);
   }
 }

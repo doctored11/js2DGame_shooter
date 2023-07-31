@@ -1,6 +1,5 @@
 export class GameObject {
   constructor(game, posX, posY, collisionRadius = 20) {
-    console.log(posX, posY, "2");
     this.game = game;
     this.collisionX = posX;
     this.collisionY = posY;
@@ -21,6 +20,7 @@ export class GameObject {
     );
     context.fill();
     context.restore();
+    context.lineWidth = 5;
     context.stroke();
     //
     context.beginPath();
@@ -45,5 +45,23 @@ export class GameObject {
     const dy = a.collisionY - b.collisionY;
     const dist = Math.hypot(dx, dy);
     return dist;
+  }
+  borderLimit(acceptablePart = 0.99) {
+    // console.log(this.collisionX, this.collisionY);
+    if (acceptablePart > 2) acceptablePart = 2;
+    if (acceptablePart <= 0) acceptablePart = 0.5;
+
+    if (this.collisionX < -(this.game.gameWidth * acceptablePart) / 2) {
+      console.log("f");
+      this.collisionX = -(this.game.gameWidth * acceptablePart) / 2;
+    } else if (this.collisionX > (this.game.gameWidth * acceptablePart) / 2) {
+      this.collisionX = (this.game.gameWidth * acceptablePart) / 2;
+    }
+
+    if (this.collisionY < -(this.game.gameHeight * acceptablePart) / 2) {
+      this.collisionY = -(this.game.gameHeight * acceptablePart) / 2;
+    } else if (this.collisionY > (this.game.gameHeight * acceptablePart) / 2) {
+      this.collisionY = (this.game.gameHeight * acceptablePart) / 2;
+    }
   }
 }

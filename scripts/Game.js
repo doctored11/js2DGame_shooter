@@ -8,6 +8,12 @@ export class Game {
     this.width = this.canvas.width;
     this.height = this.canvas.height;
 
+    this.gameWidth = 6000;
+    this.gameHeight = 6000;
+
+    this.spawnX = (this.gameWidth * 0.8) / 2;
+    this.spawnY = (this.gameHeight * 0.8) / 2;
+
     this.cameraX = 0;
     this.cameraY = 0;
 
@@ -16,13 +22,16 @@ export class Game {
 
     this.boxTimer = 0;
     this.boxInterval = 3000;
-    this.numberOfBox = 5;
+    this.numberOfBox = 40;
     this.boxes = [];
 
-    this.numberOfEnemies = 10;
+    this.numberOfEnemies = 35;
     this.enemies = [];
 
-    this.numberOfObstacles = 10;
+    this.numberOfPickableWeapon = 35;
+    this.pickableWeapons= [];
+
+    this.numberOfObstacles = 50;
     this.obstacles = [];
 
     this.activeBullets = [];
@@ -84,13 +93,15 @@ export class Game {
 
       this.timer = 0;
       context.translate(this.cameraX, this.cameraY);
+      this.drawBackground(context);
+
       this.enemies.forEach((en) => {
         en.draw(context);
         en.update();
       });
       this.obstacles.forEach((obs) => obs.draw(context));
       this.activeBullets.forEach((bullet) => {
-        bullet.update();
+        bullet.update([...this.boxes, ...this.enemies, ...this.activeBullets]);
         bullet.draw(context);
       });
       this.boxes.forEach((obs) => {
@@ -117,16 +128,19 @@ export class Game {
   }
 
   addBox() {
-    this.boxes.push(new MovingBarrier(this));
+    const box = new MovingBarrier(this);
+    this.boxes.push(box);
+    this.globalSolidObjects.push(box);
   }
   addEnemy() {
-    this.enemies.push(new Enemy(this));
+    const en = new Enemy(this);
+    this.enemies.push(en);
+    this.globalSolidObjects.push(en);
   }
 
   init() {
     for (let i = 0; i < this.numberOfEnemies; ++i) {
       this.addEnemy();
-      console.log(this.enemies);
     }
 
     for (let i = 0; i < this.numberOfBox; ++i) {
@@ -150,14 +164,39 @@ export class Game {
       });
       if (!checkOverlap) {
         this.obstacles.push(buffObs);
-        console.log(buffObs);
+        this.globalSolidObjects.push(buffObs);
       }
     }
-    this.globalSolidObjects = [
-      ...this.obstacles,
-      ...this.boxes,
-      ...this.enemies,
-      this.player,
-    ];
+    this.globalSolidObjects.push(this.player);
+  }
+  canvasPaintDecor() {
+    context.strokeRect(0, 0, this.gameWidth, this.gameHeight);
+  }
+  drawBackground(context) {
+    context.save();
+    const multiplayer = 0.9;
+    const buffX = (this.gameWidth * multiplayer) / 2;
+    const buffY = (this.gameHeight * multiplayer) / 2;
+
+    const startX = 0;
+    const startY = 0;
+
+    // Отрисовка красных границ поля
+    context.strokeStyle = "red";
+    context.lineWidth = 10;
+
+    const leftBorder = Math.max(-buffX, startX - buffX);
+    const topBorder = Math.max(-buffY, startY - buffY);
+    const rightBorder = Math.min(buffX, startX + buffX);
+    const bottomBorder = Math.min(buffY, startY + buffY);
+
+    context.strokeRect(
+      leftBorder,
+      topBorder,
+      rightBorder - leftBorder,
+      bottomBorder - topBorder
+    );
+
+    context.restore();
   }
 }

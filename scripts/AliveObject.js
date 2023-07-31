@@ -1,6 +1,6 @@
 import { NonStaticGameObjects } from "./NonStaticGameObject.js";
 export class AliveObject extends NonStaticGameObjects {
-  constructor(game, posX, posY, collisionRad, speedModificator) {
+  constructor(game, posX, posY, collisionRad, speedModificator, hp = 30) {
     super(game, posX, posY, collisionRad);
 
     this.speedClassicModificator = speedModificator;
@@ -10,6 +10,7 @@ export class AliveObject extends NonStaticGameObjects {
     this.dx = 0;
     this.dy = 0;
     this.speedModifier = this.speedClassicModificator;
+    this.healPoint = hp;
   }
 
   static catchTarget(catchingUp, target, speed) {
@@ -43,4 +44,5 @@ export class AliveObject extends NonStaticGameObjects {
       }
     });
   }
+ 
 }

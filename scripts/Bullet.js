@@ -10,17 +10,28 @@ export class Bullet extends NonStaticGameObjects {
     shotDamage = 10,
     shotSpeed = 10,
     shotDistanse = 300,
-    collisionRadius = 15
+    collisionRadius = 15,
+    endurance = 10
   ) {
     super(game, posX, posY, collisionRadius);
     this.damage = shotDamage;
     this.speed = shotSpeed;
     this.shotDistanse = shotDistanse;
     this.distanceTraveled = 0;
+    this.healPoint = endurance;
   }
-  update() {
+  update(canTakeDamageArray) {
+    canTakeDamageArray.forEach((obj) => {
+      if (obj === this) return;
+      const collisionStatus = GameObject.checkCollision(this, obj);
+
+      if (collisionStatus.status) {
+        obj.healPoint -= this.damage;
+        this.destroy();
+      }
+    });
     this.bulletMove();
-    super.update(this.game.player, this.game.globalSolidObjects);
+    super.update(this.game.player, this.game.obstacles);
   }
 
   // Метод для установки направления пули
