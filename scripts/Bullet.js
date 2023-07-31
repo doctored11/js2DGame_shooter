@@ -5,6 +5,7 @@ import { Player } from "./Player.js";
 export class Bullet extends NonStaticGameObjects {
   constructor(
     game,
+    owner,
     posX = 10,
     posY = 10,
     shotDamage = 10,
@@ -14,6 +15,7 @@ export class Bullet extends NonStaticGameObjects {
     endurance = 10
   ) {
     super(game, posX, posY, collisionRadius);
+    this.owner = owner;
     this.damage = shotDamage;
     this.speed = shotSpeed;
     this.shotDistanse = shotDistanse;
@@ -22,11 +24,12 @@ export class Bullet extends NonStaticGameObjects {
   }
   update(canTakeDamageArray) {
     canTakeDamageArray.forEach((obj) => {
-      if (obj === this) return;
+      if (obj === this || obj == this.owner) return;
       const collisionStatus = GameObject.checkCollision(this, obj);
 
       if (collisionStatus.status) {
         obj.healPoint -= this.damage;
+        obj.aggressive = true;
         this.destroy();
       }
     });

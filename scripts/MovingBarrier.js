@@ -2,7 +2,7 @@ import { NonStaticGameObjects } from "./NonStaticGameObject.js";
 import { GameObject } from "./GameObject.js";
 
 export class MovingBarrier extends NonStaticGameObjects {
-  constructor(game, hp = 20) {
+  constructor(game, hp = 40) {
     super(
       game,
       Math.random() * (game.spawnX - -game.spawnX) + -game.spawnX,

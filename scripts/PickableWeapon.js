@@ -1,16 +1,40 @@
-import { GameObject } from "./GameObject";
+import { GameObject } from "./GameObject.js";
 
-export class PickableWeapon extends GameObject{
-    constructor(game) {
-        super(
-          game,
-          Math.random() * (game.spawnX - -game.spawnX) + -game.spawnX,
-          Math.random() * (game.spawnY - -game.spawnY) + -game.spawnY,
-          10
-        );
+export class PickableWeapon extends GameObject {
+  constructor(game, armamentProto) {
+    super(
+      game,
+      Math.random() * (game.spawnX - -game.spawnX) + -game.spawnX,
+      Math.random() * (game.spawnY - -game.spawnY) + -game.spawnY,
+      10
+    );
+    this.armamentProto = armamentProto;
+  }
+
+  draw(context) {
+    super.draw(context, "gray", 0.8);
+  }
+  update(weaponHoldersArray) {
+    weaponHoldersArray.forEach((holder) => {
+      if (holder === this) return;
+      const collisionStatus = GameObject.checkCollision(this, holder);
+
+      if (collisionStatus.status) {
+        holder.gun = this.armamentProto;
+        holder.gun.holderPosition = {
+          x: holder.collosionX,
+          y: holder.collosionY,
+        };
+        holder.scared = false;
+        this.destroy(this.game.pickableWeapons);
       }
-    
-      draw(context) {
-        super.draw(context, "gray", 0.8);
-      }
+    });
+  }
+  destroy(arrOfSameTypes) {
+    const indexInLocal = arrOfSameTypes.indexOf(this);
+    // const indexInGlobal = this.game.globalSolidObjects.indexOf(this);
+
+    arrOfSameTypes.splice(indexInLocal, 1);
+    // this.game.globalSolidObjects.splice(indexInGlobal, 1);
+  }
 }

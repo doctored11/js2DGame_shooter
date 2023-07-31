@@ -2,14 +2,18 @@ import { Player } from "./Player.js";
 import { Enemy } from "./Enemy.js";
 import { Obstacle } from "./Obstacle.js";
 import { MovingBarrier } from "./MovingBarrier.js";
+import { Armament } from "./Armament.js";
+import { PickableWeapon } from "./PickableWeapon.js";
 export class Game {
   constructor(canvas) {
     this.canvas = canvas;
     this.width = this.canvas.width;
     this.height = this.canvas.height;
 
+    this.gameEnd = false;
+
     this.gameWidth = 6000;
-    this.gameHeight = 6000;
+    this.gameHeight = this.gameWidth;
 
     this.spawnX = (this.gameWidth * 0.8) / 2;
     this.spawnY = (this.gameHeight * 0.8) / 2;
@@ -20,19 +24,19 @@ export class Game {
     this.player = new Player(this);
     this.globalSolidObjects = [];
 
-    this.boxTimer = 0;
-    this.boxInterval = 3000;
-    this.numberOfBox = 40;
+    this.numberOfObstacles = (this.gameWidth / 60) * 0.4; //60 радиус камня
+    this.obstacles = [];
+
+    this.spawnTimer = 0;
+    this.spawnInterval = 3000;
+    this.numberOfBox = this.numberOfObstacles * 0.8;
     this.boxes = [];
 
-    this.numberOfEnemies = 35;
+    this.numberOfEnemies = this.numberOfObstacles * 0.6 + 1;
     this.enemies = [];
 
-    this.numberOfPickableWeapon = 35;
-    this.pickableWeapons= [];
-
-    this.numberOfObstacles = 50;
-    this.obstacles = [];
+    this.numberOfPickableWeapon = 5 * this.numberOfObstacles; //* 0.2+1;
+    this.pickableWeapons = [];
 
     this.activeBullets = [];
 
@@ -49,8 +53,12 @@ export class Game {
 
     this.canvas.addEventListener("mousedown", (event) => {
       if (event.button === 0) {
+        // console.log(this.enemies);
         this.mouseStatus.x = event.offsetX - this.cameraX;
         this.mouseStatus.y = event.offsetY - this.cameraY;
+        this.mouseStatus.pressed = true;
+      }
+      if (event.button === 2) {
         this.mouseStatus.pressed = true;
       }
     });
@@ -64,28 +72,36 @@ export class Game {
     });
 
     this.canvas.addEventListener("mousemove", (event) => {
-      if (event.button === 0 && this.mouseStatus.pressed) {
-        this.mouseStatus.x = event.offsetX - this.cameraX;
-        this.mouseStatus.y = event.offsetY - this.cameraY;
-        this.mouseStatus.pressed = true;
+      if (this.mouseStatus.pressed) {
+        if (event.buttons === 1) {
+          this.mouseStatus.x = event.offsetX - this.cameraX;
+          this.mouseStatus.y = event.offsetY - this.cameraY;
+        }
+        if (event.buttons === 2) {
+          event.preventDefault();
+          this.player.gun.shot(this.player);
+        }
       }
-    });
 
-    this.canvas.addEventListener("contextmenu", (event) => {
-      event.preventDefault();
-      //стрельба видимо
-      this.player.gun.shot();
-    });
-
-    this.canvas.addEventListener("mousemove", (event) => {
       this.mouseStatus.liveAngle = Math.atan2(
         event.offsetX - this.cameraX - this.player.collisionX,
         event.offsetY - this.cameraY - this.player.collisionY
       );
     });
+
+    this.canvas.addEventListener("contextmenu", (event) => {
+      event.preventDefault();
+
+      //стрельба видимо
+      this.player.gun.shot(this.player);
+    });
   }
 
   render(context, deltaTime) {
+    if (this.gameEnd) {
+      alert("gameOver")
+      return;
+    }
     if (this.timer > this.interval) {
       context.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.cameraX = this.canvas.width / 2 - this.player.collisionX; // Здесь player.x - это координата X игрока
@@ -96,12 +112,22 @@ export class Game {
       this.drawBackground(context);
 
       this.enemies.forEach((en) => {
-        en.draw(context);
-        en.update();
+        en.update(context);
       });
+
+      this.pickableWeapons.forEach((weapon) => {
+        weapon.update([this.player, ...this.enemies]);
+        weapon.draw(context);
+      });
+
       this.obstacles.forEach((obs) => obs.draw(context));
       this.activeBullets.forEach((bullet) => {
-        bullet.update([...this.boxes, ...this.enemies, ...this.activeBullets]);
+        bullet.update([
+          ...this.boxes,
+          ...this.enemies,
+          ...this.activeBullets,
+          this.player,
+        ]);
         bullet.draw(context);
       });
       this.boxes.forEach((obs) => {
@@ -115,16 +141,26 @@ export class Game {
     }
     this.timer += deltaTime;
 
-    if (
-      this.boxTimer > this.boxInterval &&
-      this.boxes.length < this.numberOfBox
-    ) {
-      this.addBox();
+    if (this.spawnTimer > this.spawnInterval) {
+      if (this.pickableWeapons.length < this.numberOfPickableWeapon)
+        this.addPickableWeapon();
+      if (this.boxes.length < this.numberOfBox) this.addBox();
+      if (this.enemies.length < this.numberOfEnemies) this.addEnemy();
 
-      this.boxTimer = 0;
+      this.spawnTimer = 0;
     } else {
-      this.boxTimer += deltaTime;
+      this.spawnTimer += deltaTime;
     }
+  }
+  addPickableWeapon() {
+    const damage = getRandomNumber(0.1, 100);
+    const speed = getRandomNumber(0.1, 25);
+    const distance = getRandomNumber(20, 700);
+    const interval = getRandomNumber(10, 1000);
+    const weapon = new Armament(this, damage, speed, 1, interval, distance);
+    const pickableWeaponProto = new PickableWeapon(this, weapon);
+
+    this.pickableWeapons.push(pickableWeaponProto);
   }
 
   addBox() {
@@ -146,6 +182,10 @@ export class Game {
     for (let i = 0; i < this.numberOfBox; ++i) {
       this.addBox();
     }
+    for (let i = 0; i < this.numberOfPickableWeapon; ++i) {
+      this.addPickableWeapon();
+    }
+    console.log(this.pickableWeapons);
 
     for (let i = 0; i < this.numberOfObstacles; ++i) {
       let buffObs = new Obstacle(this);
@@ -199,4 +239,7 @@ export class Game {
 
     context.restore();
   }
+}
+function getRandomNumber(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }

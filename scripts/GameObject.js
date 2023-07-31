@@ -52,7 +52,7 @@ export class GameObject {
     if (acceptablePart <= 0) acceptablePart = 0.5;
 
     if (this.collisionX < -(this.game.gameWidth * acceptablePart) / 2) {
-      console.log("f");
+      
       this.collisionX = -(this.game.gameWidth * acceptablePart) / 2;
     } else if (this.collisionX > (this.game.gameWidth * acceptablePart) / 2) {
       this.collisionX = (this.game.gameWidth * acceptablePart) / 2;
@@ -64,4 +64,6 @@ export class GameObject {
       this.collisionY = (this.game.gameHeight * acceptablePart) / 2;
     }
   }
+
+  
 }

@@ -19,13 +19,25 @@ export class Armament {
 
     this.lastShotTime = 0;
   }
-  draw(context, fillStyle = "black", alfa = 1, width = 50, height = 13) {
-    const angle = this.game.mouseStatus.liveAngle;
+  draw(
+    context,
+    owner,
+    moveAngle,
+    fillStyle = "black",
+    alfa = 1,
+    width = 50,
+    height = 13
+  ) {
+    let angle = moveAngle;
+    if (owner == this.game.player) {
+      angle = this.game.mouseStatus.liveAngle;
+    }
+
     const correctionAngle = -(angle - Math.PI / 2);
 
     context.save();
-    const player = this.game.player;
-    context.translate(player.collisionX, player.collisionY);
+
+    context.translate(owner.collisionX, owner.collisionY);
     context.rotate(correctionAngle);
     context.translate(0, -height / 2);
     context.fillStyle = fillStyle;
@@ -35,27 +47,31 @@ export class Armament {
     context.stroke();
   }
 
-  shot() {
+  shot(owner,angle=0) {
+    // console.log(owner);
     const currentTime = Date.now();
     if (currentTime - this.lastShotTime >= this.shotInterval) {
       this.lastShotTime = currentTime;
 
       // Создание и спавн пули здесь
       for (let i = 0; i < this.bulletsInShot; i++) {
-        this.spawnBullet();
+        this.spawnBullet(owner,angle);
       }
     }
   }
-  spawnBullet() {
+  spawnBullet(owner,angleShot) {
     const bullet = new Bullet(
       this.game,
-      this.game.player.collisionX,
-      this.game.player.collisionY,
+      owner,
+      owner.collisionX,
+      owner.collisionY,
       this.shotDamage,
       this.shotSpeed
     );
-
-    const angle = this.game.mouseStatus.liveAngle;
+    let angle = angleShot;
+    if (owner == this.game.player) {
+      angle = this.game.mouseStatus.liveAngle;
+    }
     const directionX = Math.sin(angle);
     const directionY = Math.cos(angle);
     bullet.setDirection(directionX, directionY);
@@ -64,6 +80,5 @@ export class Armament {
 
     // Добавьте созданную пулю в массив активных пуль вашей игры
     this.game.activeBullets.push(bullet);
-    
   }
 }

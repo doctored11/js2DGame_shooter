@@ -3,13 +3,7 @@ import { Armament } from "./Armament.js";
 
 export class Player extends AliveObject {
   constructor(game) {
-    super(
-      game,
-      Math.random() * (game.spawnX - -game.spawnX) + -game.spawnX,
-      Math.random() * (game.spawnY - -game.spawnY) + -game.spawnY,
-      25,
-      2.5
-    );
+    super(game, game.width / 2, game.height / 2, 25, 2.5);
     this.gun = new Armament(game);
   }
   draw(context) {
@@ -27,7 +21,7 @@ export class Player extends AliveObject {
     context.restore();
     super.draw(context, "red", 0.8);
 
-    this.gun.draw(context);
+    this.gun.draw(context, this);
   }
   update() {
     this.dx = this.game.mouseStatus.x - this.collisionX;
@@ -42,5 +36,6 @@ export class Player extends AliveObject {
     this.collisionY += this.speedY * this.speedModifier;
 
     super.update(this, this.game.obstacles); //тут только камни ( чтоб мог толкать коробки и прочее)
+    if (this.healPoint <= 0) this.game.gameEnd = true;
   }
 }
