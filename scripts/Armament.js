@@ -7,11 +7,13 @@ export class Armament {
     shotSpeed = 10,
     bulletsInShot = 1,
     shotInterval = 200,
+    shotDistance = 350,
     shotMode = "single"
   ) {
     this.game = game;
     this.shotDamage = shotDamage;
     this.shotSpeed = shotSpeed;
+    this.shotDistance = shotDistance;
 
     this.bulletsInShot = bulletsInShot;
     this.shotInterval = shotInterval;
@@ -47,7 +49,7 @@ export class Armament {
     context.stroke();
   }
 
-  shot(owner,angle=0) {
+  shot(owner, angle = 0) {
     // console.log(owner);
     const currentTime = Date.now();
     if (currentTime - this.lastShotTime >= this.shotInterval) {
@@ -55,18 +57,19 @@ export class Armament {
 
       // Создание и спавн пули здесь
       for (let i = 0; i < this.bulletsInShot; i++) {
-        this.spawnBullet(owner,angle);
+        this.spawnBullet(owner, angle);
       }
     }
   }
-  spawnBullet(owner,angleShot) {
+  spawnBullet(owner, angleShot) {
     const bullet = new Bullet(
       this.game,
       owner,
       owner.collisionX,
       owner.collisionY,
       this.shotDamage,
-      this.shotSpeed
+      this.shotSpeed,
+      this.shotDistance
     );
     let angle = angleShot;
     if (owner == this.game.player) {

@@ -29,7 +29,7 @@ export class Enemy extends AliveObject {
       this.destroy(this.game.enemies);
     }
 
-    const angleMove = AliveObject.idleStatusCheck(400, this, [
+    const angleMove = AliveObject.idleStatusCheck(this.attentiveRadius, this, [
       this.game.player,
     ]);
     if (
