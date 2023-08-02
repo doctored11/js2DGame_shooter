@@ -3,8 +3,14 @@ import { Enemy } from "./Enemy.js";
 import { Obstacle } from "./Obstacle.js";
 import { MovingBarrier } from "./MovingBarrier.js";
 import { Game } from "./Game.js";
+import { changeText } from "./domHud.js";
+import { addCastomMouse } from "./domHud.js";
 
 window.addEventListener("load", function () {
+  const hpProgressBar = document.getElementById("progress-bar");
+  const scoreEl = document.getElementById("score");
+  const HudObj = { hp: hpProgressBar, score: scoreEl };
+
   const canvas = document.getElementById("game-field");
   const context = canvas.getContext("2d");
   canvas.width = 1280;
@@ -14,7 +20,7 @@ window.addEventListener("load", function () {
   context.strokeStyle = "black";
   context.lineWidth = 5;
 
-  const game = new Game(canvas);
+  const game = new Game(canvas, HudObj);
   game.init();
 
   console.log(game);
@@ -31,6 +37,7 @@ window.addEventListener("load", function () {
 
   animate(0);
 
+  //не игровое
   //
   function updateCanvasSize() {
     // Устанавливаем размер холста равным размеру окна браузера
@@ -41,4 +48,9 @@ window.addEventListener("load", function () {
   window.addEventListener("resize", () => {
     updateCanvasSize();
   });
+
+  addCastomMouse(canvas);
+  //
+  //
+  //
 });

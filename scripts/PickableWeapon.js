@@ -1,6 +1,7 @@
 import { GameObject } from "./GameObject.js";
+import { NonStaticGameObjects } from "./NonStaticGameObject.js";
 
-export class PickableWeapon extends GameObject {
+export class PickableWeapon extends NonStaticGameObjects {
   constructor(game, armamentProto) {
     super(
       game,
@@ -15,6 +16,7 @@ export class PickableWeapon extends GameObject {
     super.draw(context, "gray", 0.8);
   }
   update(weaponHoldersArray) {
+    super.update( [...this.game.boxes, ...this.game.obstacles])
     weaponHoldersArray.forEach((holder) => {
       if (holder === this) return;
       const collisionStatus = GameObject.checkCollision(this, holder);
@@ -32,9 +34,9 @@ export class PickableWeapon extends GameObject {
   }
   destroy(arrOfSameTypes) {
     const indexInLocal = arrOfSameTypes.indexOf(this);
-    // const indexInGlobal = this.game.globalSolidObjects.indexOf(this);
+    const indexInGlobal = this.game.globalSolidObjects.indexOf(this);
 
     arrOfSameTypes.splice(indexInLocal, 1);
-    // this.game.globalSolidObjects.splice(indexInGlobal, 1);
+    this.game.globalSolidObjects.splice(indexInGlobal, 1);
   }
 }

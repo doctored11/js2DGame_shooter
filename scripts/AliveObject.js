@@ -18,16 +18,19 @@ export class AliveObject extends NonStaticGameObjects {
     this.dx = 0;
     this.dy = 0;
     this.speedModifier = this.speedClassicModificator;
+    this.standartHealPoint = hp;
     this.healPoint = hp;
     this.acceleration = acceleration;
 
     this.aggressive = false;
     this.scared = false;
     this.target = null;
-    this.iq = 0;
+    this.iq = 1;
+    this.defaultDirection = 0;
+    this.scorepPofitability = Math.random() * 15 + 5;
   }
 
-  static catchTarget(catchingUp, target, speed) {
+  static catchTarget(catchingUp, target, speed, atack = true) {
     let approachDistance =
       catchingUp.gun == null ? 0 : catchingUp.gun.shotDistance * 0.7;
 
@@ -49,7 +52,7 @@ export class AliveObject extends NonStaticGameObjects {
         break;
     }
 
-    if (distance > approachDistance) {
+    if (distance > approachDistance || !atack) {
       const unit_x = dx / distance;
       const unit_y = dy / distance;
 
@@ -58,6 +61,7 @@ export class AliveObject extends NonStaticGameObjects {
     }
   }
   ScanGameZone(searchArray, visibleArea) {
+    //возвращает ближнюю  цель или null
     let closestDistance = Infinity;
     let closestObject = null;
 
@@ -84,12 +88,11 @@ export class AliveObject extends NonStaticGameObjects {
       const newX = this.collisionX + unit_x * this.speed;
       const newY = this.collisionY + unit_y * this.speed;
 
-      //для перемещение ПРИРАВНЯТЬ колайдеру возвращаемое значение
-      return [newX, newY];
+      return closestObject;
     }
 
     // Если нет подходящего оружия, вернем null
-    return [0, 0];
+    return null;
   }
 
   static RanAwayFromTarget(
@@ -112,6 +115,34 @@ export class AliveObject extends NonStaticGameObjects {
       runAway.collisionX += unit_x * speed;
       runAway.collisionY += unit_y * speed;
     }
+  }
+
+  randomWalk() {
+    //перемещает объекты движением + возвращает на какое расстояние переместились
+
+    const changeDirectionChance = 5;
+    const randomShotChance = 15;
+
+    const randomNum = Math.random() * 100;
+
+    if (randomNum < changeDirectionChance) {
+      const angleChange = Math.random() * (Math.PI / 4) - Math.PI / 8;
+      this.defaultDirection += angleChange;
+    }
+    // if (this.gun != null && randomNum < randomShotChance) {
+    //   this.gun.shot(this, this.defaultDirection);
+    // }
+
+    const dx = Math.cos(this.defaultDirection) * this.speed;
+    const dy = Math.sin(this.defaultDirection) * this.speed;
+
+    if (this.borderLimit(0.7)) {
+      this.collisionX += dx;
+      this.collisionY += dy;
+    } else {
+      this.defaultDirection += Math.PI;
+    }
+    return [dx, dy];
   }
 
   static idleStatusCheck(attentiveRadius, executingObject, arrOfTargets) {
@@ -154,14 +185,18 @@ export class AliveObject extends NonStaticGameObjects {
             executingObject.speed * 1.5
           );
         } else {
-          let [buffX, buffY] = executingObject.ScanGameZone(
+          let buffTarget = executingObject.ScanGameZone(
             executingObject.game.pickableWeapons,
             attentiveRadius / 3
           );
 
-          if (buffX != 0) {
-            executingObject.collisionX = buffX;
-            executingObject.collisionY = buffY;
+          if (buffTarget != null) {
+            AliveObject.catchTarget(
+              executingObject,
+              buffTarget,
+              executingObject.speed * 1.8
+            );
+
             executingObject.aggressive = true;
           } else {
             AliveObject.RanAwayFromTarget(
@@ -176,27 +211,46 @@ export class AliveObject extends NonStaticGameObjects {
 
       //не в зоне видимости
       else if (!executingObject.scared && !executingObject.aggressive) {
-        let [buffX, buffY] = executingObject.ScanGameZone(
+        const buffTarget = executingObject.ScanGameZone(
           executingObject.game.pickableWeapons,
-          450
+          attentiveRadius
         );
 
-        dx = buffX - executingObject.collisionX;
-        dy = buffY - executingObject.collisionY;
-      } else if (!executingObject.scared) {
-        executingObject.speedX = 0;
-        executingObject.speedY = 0;
-        executingObject.dx = 0;
-        executingObject.dy = 0;
+        if (buffTarget != null) {
+          AliveObject.catchTarget(
+            executingObject,
+            buffTarget,
+            executingObject.speed,
+            false
+          );
+          dx = buffTarget.collisionX - executingObject.collisionX;
+          dy = buffTarget.collisionY - executingObject.collisionY;
+        } else {
+          [dx, dy] = executingObject.randomWalk();
+        }
+      } else if (
+        !executingObject.scared &&
+        executingObject.aggressive &&
+        executingObject.gun != null
+      ) {
+        AliveObject.catchTarget(executingObject, target, executingObject.speed);
+        dx = target.collisionX - executingObject.collisionX;
+        dy = target.collisionY - executingObject.collisionY;
       } else if (executingObject.scared && !executingObject.aggressive) {
-        let [buffX, buffY] = executingObject.ScanGameZone(
+        const buffTarget = executingObject.ScanGameZone(
           executingObject.game.pickableWeapons,
           attentiveRadius / 3
         );
 
-        if (buffX != 0) {
-          executingObject.collisionX = buffX;
-          executingObject.collisionY = buffY;
+        if (buffTarget != null) {
+          AliveObject.catchTarget(
+            executingObject,
+            buffTarget,
+            executingObject.speed
+          );
+
+          dx = buffTarget.collisionX - executingObject.collisionX;
+          dy = buffTarget.collisionY - executingObject.collisionY;
         } else {
           AliveObject.RanAwayFromTarget(
             executingObject,
@@ -204,9 +258,11 @@ export class AliveObject extends NonStaticGameObjects {
             executingObject.speed * 0.8,
             attentiveRadius
           );
+          dx = target.collisionX - executingObject.collisionX;
+          dy = target.collisionY - executingObject.collisionY;
         }
-        dx = buffX - executingObject.collisionX;
-        dy = buffY - executingObject.collisionY;
+      } else {
+        [dx, dy] = executingObject.randomWalk();
       }
 
       angleOfMoving = Math.atan2(dy, dx);

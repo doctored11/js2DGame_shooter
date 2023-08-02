@@ -50,19 +50,24 @@ export class GameObject {
     // console.log(this.collisionX, this.collisionY);
     if (acceptablePart > 2) acceptablePart = 2;
     if (acceptablePart <= 0) acceptablePart = 0.5;
+    let inZone = true
 
     if (this.collisionX < -(this.game.gameWidth * acceptablePart) / 2) {
-      
+      inZone = false
       this.collisionX = -(this.game.gameWidth * acceptablePart) / 2;
     } else if (this.collisionX > (this.game.gameWidth * acceptablePart) / 2) {
+      inZone = false
       this.collisionX = (this.game.gameWidth * acceptablePart) / 2;
     }
 
     if (this.collisionY < -(this.game.gameHeight * acceptablePart) / 2) {
+      inZone = false
       this.collisionY = -(this.game.gameHeight * acceptablePart) / 2;
     } else if (this.collisionY > (this.game.gameHeight * acceptablePart) / 2) {
+      inZone = false
       this.collisionY = (this.game.gameHeight * acceptablePart) / 2;
     }
+    return inZone
   }
 
   

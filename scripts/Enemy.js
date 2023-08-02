@@ -13,8 +13,8 @@ export class Enemy extends AliveObject {
     this.collisionY =
       Math.random() * (this.game.spawnY - -this.game.spawnY) +
       -this.game.spawnY;
-
-    this.speed = Math.random() * 2.8 + 0.5;
+    console.log(this.game.player)
+    this.speed = Math.random() * this.game.player.speedModifier + this.game.player.speedModifier/10;
     this.gun = null;
     this.attentiveRadius = attentiveRadius;
   }
@@ -23,7 +23,7 @@ export class Enemy extends AliveObject {
     if (this.gun != null) this.gun.draw(context, this, moveAngle);
   }
   update(context) {
-    super.update(this.game.player, this.game.globalSolidObjects);
+    super.update([this.game.player, ...this.game.globalSolidObjects]);
 
     if (this.healPoint <= 0) {
       this.destroy(this.game.enemies);
@@ -33,13 +33,13 @@ export class Enemy extends AliveObject {
       this.game.player,
     ]);
     if (
-      NonStaticGameObjects.getDistance(this, this.game.player) <
-        this.attentiveRadius &&
-      this.gun != null
+      this.gun != null &&
+      (NonStaticGameObjects.getDistance(this, this.game.player) <
+        this.attentiveRadius ||
+        this.aggressive)
     ) {
-      let angleofMoving =
-        // console.log(this);
-        this.gun.shot(this, angleMove);
+      console.log(this, angleMove);
+      this.gun.shot(this, angleMove);
     }
     this.draw(context, angleMove);
   }

@@ -7,7 +7,16 @@
     <link rel="stylesheet" href="./styles/style.css" />
   </head>
   <body>
+    <div class="cursor"></div>
+    <div class="point"></div>
     <canvas class="canvas game-field" id="game-field"></canvas>
+    <div class="progress-bar" id="progress-bar">
+      <div class="progress">
+        <div class="progress__fill" id="progress__fill"></div>
+        <div class="progress__hp heal-points" id="heal-points-bar">100</div>
+      </div>
+    </div>
+    <div class="score" id="score">0</div>
 
     <script type="module" src="./scripts/script.js"></script>
   </body>

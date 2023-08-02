@@ -34,7 +34,7 @@ export class Bullet extends NonStaticGameObjects {
       }
     });
     this.bulletMove();
-    super.update(this.game.player, this.game.obstacles);
+    super.update([ ...this.game.obstacles]);
   }
 
   // Метод для установки направления пули

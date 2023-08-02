@@ -3,10 +3,11 @@ import { GameObject } from "./GameObject.js";
 export class NonStaticGameObjects extends GameObject {
   constructor(game, posX, posY, collisionRadius) {
     super(game, posX, posY, collisionRadius);
+    this.scorepPofitability = Math.random() * 2 + 1;
   }
 
-  update(player, arrayOfObstacles) {
-    let collisonObject = [player, ...arrayOfObstacles];
+  update(colisionArr) {
+    let collisonObject = colisionArr
     collisonObject.forEach((obj) => {
       if (obj === this) return;
       const collisionStatus = GameObject.checkCollision(this, obj);
@@ -28,5 +29,7 @@ export class NonStaticGameObjects extends GameObject {
 
     arrayOfAlivesType.splice(indexInLocal, 1);
     this.game.globalSolidObjects.splice(indexInGlobal, 1);
+
+    this.game.score+=this.scorepPofitability
   }
 }

@@ -4,12 +4,18 @@ import { Obstacle } from "./Obstacle.js";
 import { MovingBarrier } from "./MovingBarrier.js";
 import { Armament } from "./Armament.js";
 import { PickableWeapon } from "./PickableWeapon.js";
+import { PickableHealPoints } from "./PickableHealPoint.js";
+import { changeScoreHud } from "./domHud.js";
+import { setAttackMouse,removeAttackMouse } from "./domHud.js";
 export class Game {
-  constructor(canvas) {
+  constructor(canvas, hudsObj) {
     this.canvas = canvas;
     this.width = this.canvas.width;
     this.height = this.canvas.height;
 
+    this.huds = hudsObj;
+    this.score = 0;
+    this.previousScore = 0;
     this.gameEnd = false;
 
     this.gameWidth = 6000;
@@ -32,11 +38,14 @@ export class Game {
     this.numberOfBox = this.numberOfObstacles * 0.8;
     this.boxes = [];
 
-    this.numberOfEnemies = this.numberOfObstacles * 0.6 + 1;
+    this.numberOfEnemies =  this.numberOfObstacles * 0.6 + 1;
     this.enemies = [];
 
-    this.numberOfPickableWeapon = 5 * this.numberOfObstacles; //* 0.2+1;
+    this.numberOfPickableWeapon = this.numberOfObstacles * 0.2 + 1;
     this.pickableWeapons = [];
+
+    this.numberOfMedKits = this.numberOfEnemies / 4 + 1;
+    this.medKits = [];
 
     this.activeBullets = [];
 
@@ -60,11 +69,13 @@ export class Game {
       }
       if (event.button === 2) {
         this.mouseStatus.pressed = true;
+        setAttackMouse()
       }
     });
 
     this.canvas.addEventListener("mouseup", (event) => {
       if (event.button === 0) {
+        removeAttackMouse()
         this.mouseStatus.x = event.offsetX - this.cameraX;
         this.mouseStatus.y = event.offsetY - this.cameraY;
         this.mouseStatus.pressed = false;
@@ -72,8 +83,10 @@ export class Game {
     });
 
     this.canvas.addEventListener("mousemove", (event) => {
+     
       if (this.mouseStatus.pressed) {
         if (event.buttons === 1) {
+          removeAttackMouse()
           this.mouseStatus.x = event.offsetX - this.cameraX;
           this.mouseStatus.y = event.offsetY - this.cameraY;
         }
@@ -93,15 +106,21 @@ export class Game {
       event.preventDefault();
 
       //стрельба видимо
+      removeAttackMouse()
       this.player.gun.shot(this.player);
     });
   }
 
   render(context, deltaTime) {
     if (this.gameEnd) {
-      alert("gameOver")
+      alert("gameOver");
       return;
     }
+    if (this.score != this.previousScore) {
+      changeScoreHud(this.score, this.huds.score);
+      this.previousScore = this.score;
+    }
+
     if (this.timer > this.interval) {
       context.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.cameraX = this.canvas.width / 2 - this.player.collisionX; // Здесь player.x - это координата X игрока
@@ -134,6 +153,10 @@ export class Game {
         obs.draw(context);
         obs.update();
       });
+      this.medKits.forEach((mk) => {
+        mk.update([this.player, ...this.enemies]);
+        mk.draw(context);
+      });
       this.player.update();
       this.player.draw(context);
 
@@ -155,12 +178,13 @@ export class Game {
   addPickableWeapon() {
     const damage = getRandomNumber(0.1, 100);
     const speed = getRandomNumber(0.1, 25);
-    const distance = getRandomNumber(20, 700);
-    const interval = getRandomNumber(10, 1000);
+    const distance = getRandomNumber(50, 700);
+    const interval = getRandomNumber(20, 1000);
     const weapon = new Armament(this, damage, speed, 1, interval, distance);
     const pickableWeaponProto = new PickableWeapon(this, weapon);
 
     this.pickableWeapons.push(pickableWeaponProto);
+    this.globalSolidObjects.push(pickableWeaponProto);
   }
 
   addBox() {
@@ -173,6 +197,10 @@ export class Game {
     this.enemies.push(en);
     this.globalSolidObjects.push(en);
   }
+  addMedKit() {
+    const mk = new PickableHealPoints(this);
+    this.medKits.push(mk);
+  }
 
   init() {
     for (let i = 0; i < this.numberOfEnemies; ++i) {
@@ -181,6 +209,9 @@ export class Game {
 
     for (let i = 0; i < this.numberOfBox; ++i) {
       this.addBox();
+    }
+    for (let i = 0; i < this.numberOfMedKits; ++i) {
+      this.addMedKit();
     }
     for (let i = 0; i < this.numberOfPickableWeapon; ++i) {
       this.addPickableWeapon();

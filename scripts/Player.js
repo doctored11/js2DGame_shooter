@@ -1,9 +1,15 @@
 import { AliveObject } from "./AliveObject.js";
 import { Armament } from "./Armament.js";
+import { changeText } from "./domHud.js";
+import { changeHpHud } from "./domHud.js";
+
+let bufferHp=0;
+
+
 
 export class Player extends AliveObject {
   constructor(game) {
-    super(game, game.width / 2, game.height / 2, 25, 2.5);
+    super(game, game.width / 2, game.height / 2, 25, 3);
     this.gun = new Armament(game);
   }
   draw(context) {
@@ -24,6 +30,12 @@ export class Player extends AliveObject {
     this.gun.draw(context, this);
   }
   update() {
+    if (bufferHp != this.healPoint) {
+      changeHpHud(this.healPoint, this.standartHealPoint, this.game.huds.hp)
+      bufferHp = this.healPoint
+    }
+    if (this.healPoint <= 0) this.game.gameEnd = true;
+
     this.dx = this.game.mouseStatus.x - this.collisionX;
     this.dy = this.game.mouseStatus.y - this.collisionY;
 
@@ -35,7 +47,7 @@ export class Player extends AliveObject {
     this.collisionX += this.speedX * this.speedModifier;
     this.collisionY += this.speedY * this.speedModifier;
 
-    super.update(this, this.game.obstacles); //тут только камни ( чтоб мог толкать коробки и прочее)
-    if (this.healPoint <= 0) this.game.gameEnd = true;
+    super.update([this.game.player, ...this.game.obstacles]); //тут только камни ( чтоб мог толкать коробки и прочее)
+    
   }
 }

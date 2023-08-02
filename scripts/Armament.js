@@ -79,7 +79,7 @@ export class Armament {
     const directionY = Math.cos(angle);
     bullet.setDirection(directionX, directionY);
 
-    console.log(this.game.activeBullets);
+    
 
     // Добавьте созданную пулю в массив активных пуль вашей игры
     this.game.activeBullets.push(bullet);
