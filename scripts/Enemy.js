@@ -38,7 +38,7 @@ export class Enemy extends AliveObject {
         this.attentiveRadius ||
         this.aggressive)
     ) {
-      console.log(this, angleMove);
+      
       this.gun.shot(this, angleMove);
     }
     this.draw(context, angleMove);

@@ -1,5 +1,4 @@
 export function changeText(el, text) {
-  console.log(el, text);
   text += "";
   el.textContent = text;
 }
@@ -11,7 +10,7 @@ export function changeHpHud(hpNow, hpFull, hudEl) {
 
   const fillEl = hudEl.querySelector(".progress__fill");
   const hpEl = hudEl.querySelector(".progress__hp");
-  console.log(fillEl);
+
   const hpPercent = (hpNow * 100) / hpFull;
   fillEl.style.width = hpPercent + "%";
 
@@ -23,9 +22,18 @@ export function changeScoreHud(score, hudEl) {
   changeText(hudEl, Math.ceil(score));
 }
 const cursor = document.querySelector(".cursor");
-  const point = document.querySelector(".point");
+const point = document.querySelector(".point");
+
 export function addCastomMouse() {
-  
+  //
+  const element = document.body;
+
+  function handleWheel(event) {
+    event.preventDefault();
+  }
+
+  element.addEventListener("wheel", handleWheel);
+  //
 
   let mouseX = 0;
   let mouseY = 0;
@@ -52,24 +60,37 @@ export function addCastomMouse() {
     mouseX = e.clientX;
     mouseY = e.clientY;
   });
-  document.addEventListener("contextmenu", (event) => {
-    event.preventDefault();
-  },{capture: true});
-  
+  document.addEventListener(
+    "contextmenu",
+    (event) => {
+      event.preventDefault();
+    },
+    { capture: true }
+  );
 
   moveCursor();
 }
 
-export function setAttackMouse(){
-  cursor.classList.add('--attack')
-  point.classList.add('--attack')
-  
-
+export function setAttackMouse() {
+  cursor.classList.add("--attack");
+  point.classList.add("--attack");
 }
 
-export function removeAttackMouse(){
-  cursor.classList.remove('--attack')
-  point.classList.remove('--attack')
-  
+export function removeAttackMouse() {
+  cursor.classList.remove("--attack");
+  point.classList.remove("--attack");
+}
 
+export function setInteractionMouse() {
+  document.body.style.cursor = "none";
+
+  cursor.classList.add("--interaction");
+  point.classList.add("--interaction");
+}
+
+export function removeInteractionMouse() {
+  document.body.style.cursor = "none";
+
+  cursor.classList.remove("--interaction");
+  point.classList.remove("--interaction");
 }

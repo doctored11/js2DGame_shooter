@@ -6,7 +6,12 @@ import { Armament } from "./Armament.js";
 import { PickableWeapon } from "./PickableWeapon.js";
 import { PickableHealPoints } from "./PickableHealPoint.js";
 import { changeScoreHud } from "./domHud.js";
-import { setAttackMouse,removeAttackMouse } from "./domHud.js";
+import {
+  setAttackMouse,
+  removeAttackMouse,
+  setInteractionMouse,
+  removeInteractionMouse,
+} from "./domHud.js";
 export class Game {
   constructor(canvas, hudsObj) {
     this.canvas = canvas;
@@ -38,7 +43,7 @@ export class Game {
     this.numberOfBox = this.numberOfObstacles * 0.8;
     this.boxes = [];
 
-    this.numberOfEnemies =  this.numberOfObstacles * 0.6 + 1;
+    this.numberOfEnemies = this.numberOfObstacles * 0.6 + 1;
     this.enemies = [];
 
     this.numberOfPickableWeapon = this.numberOfObstacles * 0.2 + 1;
@@ -61,7 +66,13 @@ export class Game {
     };
 
     this.canvas.addEventListener("mousedown", (event) => {
+      console.log(event);
+
       if (event.button === 0) {
+        this.player.isNavigate = false;
+        this.player.isJumping = false;
+
+        this.player.routePoints = [];
         // console.log(this.enemies);
         this.mouseStatus.x = event.offsetX - this.cameraX;
         this.mouseStatus.y = event.offsetY - this.cameraY;
@@ -69,24 +80,66 @@ export class Game {
       }
       if (event.button === 2) {
         this.mouseStatus.pressed = true;
-        setAttackMouse()
+        if (this.player.isJumping) return;
+
+        setAttackMouse();
+      }
+      if (event.button === 1) {
+        removeAttackMouse();
+        setInteractionMouse();
+        if (this.player.isJumping) return;
+        document.body.style.cursor = "none";
+        event.preventDefault();
+        this.mouseStatus.pressed = true;
+        this.player.isNavigate = false;
+        this.player.routePoints = [];
+
+        //прыжок
+        this.mouseStatus.x = event.offsetX - this.cameraX;
+        this.mouseStatus.y = event.offsetY - this.cameraY;
+
+        [this.mouseStatus.x, this.mouseStatus.y] = this.player.fastJump(
+          event.offsetX - this.cameraX,
+          event.offsetY - this.cameraY
+        );
+
+        //следование по точкам
+        // if (this.player.routePoints.length < 3) {
+        //   this.player.isNavigate = true;
+        //   this.player.routePoints.push({
+        //     x: event.offsetX - this.cameraX,
+        //     y: event.offsetY - this.cameraY,
+        //   });
+
+        //   [this.mouseStatus.x, this.mouseStatus.y] =
+        //     this.player.followTheDots();
+        // }
+        //
       }
     });
 
     this.canvas.addEventListener("mouseup", (event) => {
       if (event.button === 0) {
-        removeAttackMouse()
+        removeAttackMouse();
+        removeInteractionMouse();
+        if (this.player.isJumping) return;
         this.mouseStatus.x = event.offsetX - this.cameraX;
         this.mouseStatus.y = event.offsetY - this.cameraY;
+        this.mouseStatus.pressed = false;
+      }
+      if (event.button === 1) {
+        document.body.style.cursor = "none";
+        removeAttackMouse();
+        removeInteractionMouse();
         this.mouseStatus.pressed = false;
       }
     });
 
     this.canvas.addEventListener("mousemove", (event) => {
-     
+      event.preventDefault();
       if (this.mouseStatus.pressed) {
         if (event.buttons === 1) {
-          removeAttackMouse()
+          removeAttackMouse();
           this.mouseStatus.x = event.offsetX - this.cameraX;
           this.mouseStatus.y = event.offsetY - this.cameraY;
         }
@@ -106,7 +159,7 @@ export class Game {
       event.preventDefault();
 
       //стрельба видимо
-      removeAttackMouse()
+      removeAttackMouse();
       this.player.gun.shot(this.player);
     });
   }
