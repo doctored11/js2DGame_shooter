@@ -10,7 +10,7 @@ import {
   setAttackMouse,
   removeAttackMouse,
   setInteractionMouse,
-  removeInteractionMouse,
+  removeInteractionMouse,updateAbility
 } from "./domHud.js";
 export class Game {
   constructor(canvas, hudsObj) {
@@ -38,6 +38,9 @@ export class Game {
     this.numberOfObstacles = (this.gameWidth / 60) * 0.4; //60 радиус камня
     this.obstacles = [];
 
+    this.jumpTimer = 0;
+    this.jumpInterval = 1500;
+
     this.spawnTimer = 0;
     this.spawnInterval = 3000;
     this.numberOfBox = this.numberOfObstacles * 0.8;
@@ -62,8 +65,45 @@ export class Game {
       x: this.width / 2,
       y: this.height / 2,
       pressed: false,
+      event: null,
+      action: null,
       liveAngle: 0,
     };
+
+    const values = this.player.modeValues;
+    let currentIndex = 0;
+    let accumulatedDeltaY = 0;
+    const scrollThreshold = 100; // Порог прокрутки, который нужно превысить, чтобы переключить элемент
+
+    // Функция для вывода текущего элемента в консоль
+
+    // Функция обработки события колесика мыши
+
+    // Привязываем обработчик события колесика мыши к документу
+    this.canvas.addEventListener("wheel", (event) => {
+      accumulatedDeltaY += event.deltaY;
+
+      // Проверяем, превысила ли накопленная прокрутка порог
+      if (Math.abs(accumulatedDeltaY) >= scrollThreshold) {
+        // Определяем направление прокрутки колесика мыши
+        if (accumulatedDeltaY > 0) {
+          // Прокрутка вниз, переходим к следующему элементу
+          currentIndex = (currentIndex + 1) % values.length;
+        } else {
+          // Прокрутка вверх, переходим к предыдущему элементу
+          currentIndex = (currentIndex - 1 + values.length) % values.length;
+        }
+
+        // Сбрасываем накопленную прокрутку
+        accumulatedDeltaY = 0;
+
+        
+        this.changeModValue(currentIndex);
+      }
+    });
+
+    // Выводим текущий элемент в консоль при запуске скрипта
+    this.changeModValue();
 
     this.canvas.addEventListener("mousedown", (event) => {
       console.log(event);
@@ -91,30 +131,35 @@ export class Game {
         document.body.style.cursor = "none";
         event.preventDefault();
         this.mouseStatus.pressed = true;
-        this.player.isNavigate = false;
-        this.player.routePoints = [];
 
         //прыжок
-        this.mouseStatus.x = event.offsetX - this.cameraX;
-        this.mouseStatus.y = event.offsetY - this.cameraY;
 
-        [this.mouseStatus.x, this.mouseStatus.y] = this.player.fastJump(
-          event.offsetX - this.cameraX,
-          event.offsetY - this.cameraY
-        );
+        if (this.player.modeAbility == "jump") {
+          this.player.isNavigate = false;
+          this.player.routePoints = [];
+          if (this.jumpTimer < this.jumpInterval) return;
+          this.mouseStatus.x = event.offsetX - this.cameraX;
+          this.mouseStatus.y = event.offsetY - this.cameraY;
 
-        //следование по точкам
-        // if (this.player.routePoints.length < 3) {
-        //   this.player.isNavigate = true;
-        //   this.player.routePoints.push({
-        //     x: event.offsetX - this.cameraX,
-        //     y: event.offsetY - this.cameraY,
-        //   });
+          [this.mouseStatus.x, this.mouseStatus.y] = this.player.fastJump(
+            event.offsetX - this.cameraX,
+            event.offsetY - this.cameraY
+          );
+        }
+        if (this.player.modeAbility == "navigate") {
+          //следование по точкам
 
-        //   [this.mouseStatus.x, this.mouseStatus.y] =
-        //     this.player.followTheDots();
-        // }
-        //
+          if (this.player.routePoints.length < 3) {
+            this.player.isNavigate = true;
+            this.player.routePoints.push({
+              x: event.offsetX - this.cameraX,
+              y: event.offsetY - this.cameraY,
+            });
+            [this.mouseStatus.x, this.mouseStatus.y] =
+              this.player.followTheDots();
+          }
+          //
+        }
       }
     });
 
@@ -162,6 +207,11 @@ export class Game {
       removeAttackMouse();
       this.player.gun.shot(this.player);
     });
+  }
+  changeModValue(currentIndex = 1) {
+    updateAbility(currentIndex)
+    this.player.modeAbility = this.player.modeValues[currentIndex];
+    console.log(this.player.modeValues[currentIndex]);
   }
 
   render(context, deltaTime) {
@@ -227,6 +277,7 @@ export class Game {
     } else {
       this.spawnTimer += deltaTime;
     }
+    this.jumpTimer += deltaTime;
   }
   addPickableWeapon() {
     const damage = getRandomNumber(0.1, 100);

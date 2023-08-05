@@ -1,10 +1,9 @@
 html {
   overflow: hidden;
- cursor: none;
- 
+  cursor: none;
 }
-
-
+* {
+}
 
 body {
   overflow: hidden;
@@ -120,4 +119,47 @@ body {
   transition: width cubic-bezier(0.23, 1, 0.32, 1) 0.1s,
     height cubic-bezier(0.23, 1, 0.32, 1) 0.1s,
     background-color cubic-bezier(0.23, 1, 0.32, 1) 0.2s;
+}
+.ability-block {
+  position: absolute;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  min-width: 15%;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  z-index: 6;
+  top: 0;
+  left: 0;
+  bottom: 0;
+}
+.abilities {
+  height: 70%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: left;
+  justify-content: center;
+  list-style-type: none;
+  padding: 0;
+  padding-left: 20%;
+  margin: 0;
+}
+.abilities__block {
+  width: 5rem;
+  height: 5rem;
+  margin-bottom: 15px;
+  padding: 10%;
+
+  border: 4px solid #21821eae;
+  border-radius: 5px;
+}
+.abilities__block.--active {
+  outline: rgba(3, 244, 3, 0.96) solid 3px;
 }

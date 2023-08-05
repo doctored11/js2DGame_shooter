@@ -13,7 +13,7 @@ export class Enemy extends AliveObject {
     this.collisionY =
       Math.random() * (this.game.spawnY - -this.game.spawnY) +
       -this.game.spawnY;
-    console.log(this.game.player)
+   
     this.speed = Math.random() * this.game.player.speedModifier + this.game.player.speedModifier/10;
     this.gun = null;
     this.attentiveRadius = attentiveRadius;

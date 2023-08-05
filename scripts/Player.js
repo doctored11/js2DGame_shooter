@@ -17,11 +17,16 @@ export class Player extends AliveObject {
     this.distanceTraveled = 0;
     this.jumpBoost = 12;
     this.jumpMaxDistance = this.game.gameWidth * 0.05;
-    this.healPoint = 10000;
+    this.standartHealPoint = 10000;
+    this.healPoint = this.standartHealPoint;
+    this.modeAbility = "jump";
+ 
+    this.modeValues = [null, "navigate", "jump", "__3"];
   }
 
   draw(context) {
-    if (this.isJumping) this.paintJumpLine(context);
+    if (this.isJumping && this.game.jumpTimer > this.game.jumpInterval)
+      this.paintJumpLine(context);
     else if (this.routePoints.length > 0) {
       this.paintСurvedLine(context);
 
@@ -44,6 +49,14 @@ export class Player extends AliveObject {
     if (this.isNavigate) {
       [this.game.mouseStatus.x, this.game.mouseStatus.y] = this.followTheDots();
     }
+    if (this.isJumping && this.game.jumpTimer > this.game.jumpInterval) {
+      this.collisionX += this.speedX * (this.speedModifier + this.jumpBoost);
+      this.collisionY += this.speedY * (this.speedModifier + this.jumpBoost);
+      [this.game.mouseStatus.x, this.game.mouseStatus.y] = this.fastJump(
+        this.game.mouseStatus.x,
+        this.game.mouseStatus.y
+      );
+    }
 
     this.dx = this.game.mouseStatus.x - this.collisionX;
     this.dy = this.game.mouseStatus.y - this.collisionY;
@@ -52,17 +65,11 @@ export class Player extends AliveObject {
     if (distance < this.speedModifier) return;
     this.speedX = this.dx / distance || 0;
     this.speedY = this.dy / distance || 0;
-    if (this.isJumping) {
-      this.collisionX += this.speedX * (this.speedModifier + this.jumpBoost);
-      this.collisionY += this.speedY * (this.speedModifier + this.jumpBoost);
-      [this.game.mouseStatus.x, this.game.mouseStatus.y] = this.fastJump(
-        this.game.mouseStatus.x,
-        this.game.mouseStatus.y
-      );
-    } else {
-      this.collisionX += this.speedX * this.speedModifier;
-      this.collisionY += this.speedY * this.speedModifier;
-    }
+
+    //
+
+    this.collisionX += this.speedX * this.speedModifier;
+    this.collisionY += this.speedY * this.speedModifier;
 
     super.update([this.game.player, ...this.game.obstacles]); //тут только камни ( чтоб мог толкать коробки и прочее)
   }
@@ -161,6 +168,7 @@ export class Player extends AliveObject {
       this.startJumpX = null;
       this.startJumpY = null;
       this.distanceTraveled = 0;
+      this.game.jumpTimer = 0;
       return [this.collisionX, this.collisionY];
     }
     return [x, y];

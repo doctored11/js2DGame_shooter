@@ -94,3 +94,14 @@ export function removeInteractionMouse() {
   cursor.classList.remove("--interaction");
   point.classList.remove("--interaction");
 }
+const abilities = document.querySelector(".abilities");
+const abilityblocks = document.querySelectorAll(".abilities__block");
+
+export function updateAbility(index) {
+  abilityblocks.forEach((block) => {
+    block.classList.remove("--active");
+  });
+  if (index <= 0) return;
+  const active = abilities.querySelector(`.abilities__block-${index}`);
+  active.classList.add("--active");
+}
