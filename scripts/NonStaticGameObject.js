@@ -1,8 +1,8 @@
 import { GameObject } from "./GameObject.js";
 
 export class NonStaticGameObjects extends GameObject {
-  constructor(game, posX, posY, collisionRadius) {
-    super(game, posX, posY, collisionRadius);
+  constructor(game, posX, posY, collisionRadius, spriteWidth = 20* game.pointScale) {
+    super(game, posX, posY, collisionRadius,spriteWidth);
     this.scorepPofitability = Math.random() * 2 + 1;
   }
 

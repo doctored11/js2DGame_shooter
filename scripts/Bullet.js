@@ -11,7 +11,7 @@ export class Bullet extends NonStaticGameObjects {
     shotDamage = 10,
     shotSpeed = 10,
     shotDistanse = 300,
-    collisionRadius = 15,
+    collisionRadius = game.pointScale *1.5,
     endurance = 10
   ) {
     super(game, posX, posY, collisionRadius);

@@ -6,8 +6,11 @@ export class Obstacle extends GameObject {
       game,
       Math.random() * (game.spawnX - -game.spawnX) + -game.spawnX,
       Math.random() * (game.spawnY - -game.spawnY) + -game.spawnY,
-      60
+      16 * game.pointScale,
+      110 * game.pointScale
     );
+    this.image = new Image();
+    this.image.src = "../source/environment/mountain.png";
   }
 
   draw(context) {

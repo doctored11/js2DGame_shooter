@@ -10,7 +10,8 @@ import {
   setAttackMouse,
   removeAttackMouse,
   setInteractionMouse,
-  removeInteractionMouse,updateAbility
+  removeInteractionMouse,
+  updateAbility,
 } from "./domHud.js";
 export class Game {
   constructor(canvas, hudsObj) {
@@ -31,6 +32,7 @@ export class Game {
 
     this.cameraX = 0;
     this.cameraY = 0;
+    this.pointScale = 10;
 
     this.player = new Player(this);
     this.globalSolidObjects = [];
@@ -97,7 +99,6 @@ export class Game {
         // Сбрасываем накопленную прокрутку
         accumulatedDeltaY = 0;
 
-        
         this.changeModValue(currentIndex);
       }
     });
@@ -209,7 +210,7 @@ export class Game {
     });
   }
   changeModValue(currentIndex = 1) {
-    updateAbility(currentIndex)
+    updateAbility(currentIndex);
     this.player.modeAbility = this.player.modeValues[currentIndex];
     console.log(this.player.modeValues[currentIndex]);
   }
@@ -233,16 +234,8 @@ export class Game {
       context.translate(this.cameraX, this.cameraY);
       this.drawBackground(context);
 
-      this.enemies.forEach((en) => {
-        en.update(context);
-      });
+      this.player.update();
 
-      this.pickableWeapons.forEach((weapon) => {
-        weapon.update([this.player, ...this.enemies]);
-        weapon.draw(context);
-      });
-
-      this.obstacles.forEach((obs) => obs.draw(context));
       this.activeBullets.forEach((bullet) => {
         bullet.update([
           ...this.boxes,
@@ -252,16 +245,37 @@ export class Game {
         ]);
         bullet.draw(context);
       });
-      this.boxes.forEach((obs) => {
-        obs.draw(context);
-        obs.update();
+
+      //это для того чтоб дальние объекты не перекрывали передние
+      const allObjects = [
+        this.player,
+        ...this.obstacles,
+        ...this.boxes,
+        ...this.medKits,
+        ...this.enemies,
+        ...this.pickableWeapons,
+      ];
+
+      allObjects.sort((a, b) => a.collisionY - b.collisionY);
+
+      allObjects.forEach((obj) => {
+        if (obj instanceof Player) {
+          obj.draw(context);
+        } else if (obj instanceof Obstacle) {
+          obj.draw(context);
+        } else if (obj instanceof MovingBarrier) {
+          obj.update();
+          obj.draw(context);
+        } else if (obj instanceof PickableHealPoints) {
+          obj.update([this.player, ...this.enemies]);
+          obj.draw(context);
+        } else if (obj instanceof Enemy) {
+          obj.update(context);
+        } else if (obj instanceof PickableWeapon) {
+          obj.update([this.player, ...this.enemies]);
+          obj.draw(context);
+        }
       });
-      this.medKits.forEach((mk) => {
-        mk.update([this.player, ...this.enemies]);
-        mk.draw(context);
-      });
-      this.player.update();
-      this.player.draw(context);
 
       context.translate(-this.cameraX, -this.cameraY);
     }
@@ -280,10 +294,10 @@ export class Game {
     this.jumpTimer += deltaTime;
   }
   addPickableWeapon() {
-    const damage = getRandomNumber(0.1, 100);
-    const speed = getRandomNumber(0.1, 25);
-    const distance = getRandomNumber(50, 700);
-    const interval = getRandomNumber(20, 1000);
+    const damage = getRandomNumber(0.1, 80);
+    const speed = getRandomNumber(0.3, 25);
+    const distance = getRandomNumber(200, 1000);
+    const interval = getRandomNumber(20, 1100);
     const weapon = new Armament(this, damage, speed, 1, interval, distance);
     const pickableWeaponProto = new PickableWeapon(this, weapon);
 

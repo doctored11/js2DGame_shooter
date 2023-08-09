@@ -7,9 +7,9 @@ export class PickableHealPoints extends NonStaticGameObjects {
       game,
       Math.random() * (game.spawnX - -game.spawnX) + -game.spawnX,
       Math.random() * (game.spawnY - -game.spawnY) + -game.spawnY,
-      10
+      20
     );
-    this.healValue = Math.random() * (20 - 1) + 1;
+    this.healValue = Math.random() * (40 - 5) + 5;
     this.scorepPofitability = 1;
   }
   draw(context) {

@@ -2,10 +2,10 @@ import { AliveObject } from "./AliveObject.js";
 import { NonStaticGameObjects } from "./NonStaticGameObject.js";
 
 export class Enemy extends AliveObject {
-  constructor(game, attentiveRadius = 400) {
+  constructor(game, attentiveRadius = 650) {
     super(game);
     this.game = game;
-    this.collisionRadius = 30;
+    this.collisionRadius = 5 * this.game.pointScale;
 
     this.collisionX =
       Math.random() * (this.game.spawnX - -this.game.spawnX) +

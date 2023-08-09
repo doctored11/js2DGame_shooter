@@ -28,6 +28,7 @@ export class AliveObject extends NonStaticGameObjects {
     this.iq = 1;
     this.defaultDirection = 0;
     this.scorepPofitability = Math.random() * 15 + 5;
+    this.isDirectionMirrored = false
   }
 
   static catchTarget(catchingUp, target, speed, atack = true) {
@@ -51,6 +52,7 @@ export class AliveObject extends NonStaticGameObjects {
       case 3:
         break;
     }
+    approachDistance += catchingUp.collisionRad/2;
 
     if (distance > approachDistance || !atack) {
       const unit_x = dx / distance;

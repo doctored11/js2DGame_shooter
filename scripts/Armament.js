@@ -1,4 +1,5 @@
 import { Bullet } from "./Bullet.js";
+import { GameObject } from "./GameObject.js";
 
 export class Armament {
   constructor(
@@ -7,7 +8,7 @@ export class Armament {
     shotSpeed = 10,
     bulletsInShot = 1,
     shotInterval = 200,
-    shotDistance = 350,
+    shotDistance = 600,
     shotMode = "single"
   ) {
     this.game = game;
@@ -20,6 +21,10 @@ export class Armament {
     this.shotMode = shotMode;
 
     this.lastShotTime = 0;
+
+    this.image = new Image();
+    this.image.src = "../source/PlayerSkin/playerGun.png";
+    this.spriteHeight = 25 * game.pointScale;
   }
   draw(
     context,
@@ -34,19 +39,36 @@ export class Armament {
     if (owner == this.game.player) {
       angle = this.game.mouseStatus.liveAngle;
     }
+    // this.spriteX = owner.collisionX -  this.spriteHeight * 0.5;
+    // this.spriteY = owner.collisionY -  this.spriteHeight * 0.5;
 
     const correctionAngle = -(angle - Math.PI / 2);
 
     context.save();
-
     context.translate(owner.collisionX, owner.collisionY);
     context.rotate(correctionAngle);
-    context.translate(0, -height / 2);
-    context.fillStyle = fillStyle;
-    context.globalAlpha = alfa;
-    context.fillRect(0, 0, width, height);
+    context.translate(-this.spriteHeight * 0.5, -this.spriteHeight * 0.5);
+
+    if (angle < 0) {
+      context.save();
+      context.scale(1, -1); // Отражение по горизонтали
+
+      context.drawImage(
+        this.image,
+        0,
+        0 - this.spriteHeight,
+        this.spriteHeight,
+        this.spriteHeight
+      );
+
+      context.restore();
+    } else {
+      context.drawImage(this.image, 0, 0, this.spriteHeight, this.spriteHeight);
+    }
+
+    // Смещение
+
     context.restore();
-    context.stroke();
   }
 
   shot(owner, angle = 0) {
@@ -62,15 +84,29 @@ export class Armament {
     }
   }
   spawnBullet(owner, angleShot) {
+    const bulletSpawn = this.getBulletSpawn(owner, angleShot);
+    let collisionDetected = false;
+
+    this.game.globalSolidObjects.forEach((element) => {
+      if (GameObject.checkCollision(bulletSpawn, element).status) {
+        collisionDetected = true;
+        return;
+      }
+    });
+    if (collisionDetected) {
+      return;
+    }
+
     const bullet = new Bullet(
       this.game,
       owner,
-      owner.collisionX,
-      owner.collisionY,
+      bulletSpawn.collisionX,
+      bulletSpawn.collisionY,
       this.shotDamage,
       this.shotSpeed,
       this.shotDistance
     );
+
     let angle = angleShot;
     if (owner == this.game.player) {
       angle = this.game.mouseStatus.liveAngle;
@@ -79,9 +115,41 @@ export class Armament {
     const directionY = Math.cos(angle);
     bullet.setDirection(directionX, directionY);
 
-    
-
     // Добавьте созданную пулю в массив активных пуль вашей игры
     this.game.activeBullets.push(bullet);
+  }
+  getBulletSpawn(owner, angle = 0) {
+    let correctionAngle = -angle;
+
+    if (owner == this.game.player) {
+      correctionAngle = -this.game.mouseStatus.liveAngle;
+    }
+
+    let rotatedX, rotatedY;
+
+    if (correctionAngle > 0) {
+      rotatedX =
+        owner.collisionX + this.spriteHeight * 0.15 * Math.cos(correctionAngle);
+      rotatedY =
+        owner.collisionY + this.spriteHeight * 0.15 * Math.sin(correctionAngle);
+    } else {
+      rotatedX =
+        owner.collisionX - this.spriteHeight * 0.15 * Math.cos(correctionAngle);
+      rotatedY =
+        owner.collisionY - this.spriteHeight * 0.15 * Math.sin(correctionAngle);
+    }
+
+    const edgeX =
+      rotatedX +
+      this.spriteHeight * 0.5 * Math.cos(correctionAngle + Math.PI / 2);
+    const edgeY =
+      rotatedY +
+      this.spriteHeight * 0.5 * Math.sin(correctionAngle + Math.PI / 2);
+
+    return {
+      collisionX: edgeX,
+      collisionY: edgeY,
+      collisionRadius: this.game.pointScale * 2,
+    };
   }
 }

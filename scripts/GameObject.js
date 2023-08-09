@@ -1,9 +1,24 @@
 export class GameObject {
-  constructor(game, posX, posY, collisionRadius = 20) {
+  constructor(
+    game,
+    posX,
+    posY,
+    collisionRadius = 4 * game.pointScale,
+    spriteWidth = 20* game.pointScale
+  ) {
     this.game = game;
     this.collisionX = posX;
     this.collisionY = posY;
     this.collisionRadius = collisionRadius;
+
+    this.spriteWidth = spriteWidth;
+    this.spriteHeight = spriteWidth;
+    this.width = this.spriteWidth;
+    this.height = this.spriteHeight;
+    this.image = null;
+
+    this.spriteX = this.collisionX - this.width * 0.5;
+    this.spriteY = this.collisionY - this.height * 0.5;
   }
   draw(context, fillStyle = "gray", alfa = 0.2) {
     context.save();
@@ -24,6 +39,19 @@ export class GameObject {
     context.stroke();
     //
     context.beginPath();
+
+    context.save();
+
+    if (this.image != undefined) {
+      context.drawImage(
+        this.image,
+        this.spriteX,
+        this.spriteY,
+        this.width,
+        this.height
+      );
+    }
+    context.restore();
   }
 
   static checkCollision(a, b) {
@@ -50,25 +78,23 @@ export class GameObject {
     // console.log(this.collisionX, this.collisionY);
     if (acceptablePart > 2) acceptablePart = 2;
     if (acceptablePart <= 0) acceptablePart = 0.5;
-    let inZone = true
+    let inZone = true;
 
     if (this.collisionX < -(this.game.gameWidth * acceptablePart) / 2) {
-      inZone = false
+      inZone = false;
       this.collisionX = -(this.game.gameWidth * acceptablePart) / 2;
     } else if (this.collisionX > (this.game.gameWidth * acceptablePart) / 2) {
-      inZone = false
+      inZone = false;
       this.collisionX = (this.game.gameWidth * acceptablePart) / 2;
     }
 
     if (this.collisionY < -(this.game.gameHeight * acceptablePart) / 2) {
-      inZone = false
+      inZone = false;
       this.collisionY = -(this.game.gameHeight * acceptablePart) / 2;
     } else if (this.collisionY > (this.game.gameHeight * acceptablePart) / 2) {
-      inZone = false
+      inZone = false;
       this.collisionY = (this.game.gameHeight * acceptablePart) / 2;
     }
-    return inZone
+    return inZone;
   }
-
-  
 }

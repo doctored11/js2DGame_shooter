@@ -7,7 +7,7 @@ let bufferHp = 0;
 
 export class Player extends AliveObject {
   constructor(game) {
-    super(game, game.width / 2, game.height / 2, 25, 3);
+    super(game, game.width / 2, game.height / 2, 5 * game.pointScale, 3);
     this.gun = new Armament(game);
     this.routePoints = [];
     this.isNavigate = false;
@@ -20,7 +20,14 @@ export class Player extends AliveObject {
     this.standartHealPoint = 10000;
     this.healPoint = this.standartHealPoint;
     this.modeAbility = "jump";
- 
+
+    this.spriteX = this.collisionX - this.width * 0.5;
+    this.spriteY = this.collisionY - this.height * 0.5;
+
+    this.image = new Image();
+    this.image.src = "../source/PlayerSkin/player.png";
+    // this.spriteHeight = 250;
+
     this.modeValues = [null, "navigate", "jump", "__3"];
   }
 
@@ -35,11 +42,33 @@ export class Player extends AliveObject {
       this.paintStraightLine(context);
     }
 
-    super.draw(context, "red", 0.8);
+    // super.draw(context, "red", 0.1);
 
+    if (this.isDirectionMirrored) {
+      context.save();
+      context.scale(-1, 1); // Отражение по горизонтали
+      context.drawImage(
+        this.image,
+        -this.spriteX - this.width, // начальная позиция по X на изображении (сдвиг влево)
+        this.spriteY,
+        this.width,
+        this.height
+      );
+      context.restore();
+    } else {
+      context.drawImage(
+        this.image,
+        this.spriteX,
+        this.spriteY,
+        this.width,
+        this.height
+      );
+    }
     this.gun.draw(context, this);
   }
   update() {
+    this.spriteX = this.collisionX - this.width * 0.5;
+    this.spriteY = this.collisionY - this.height * 0.5;
     if (bufferHp != this.healPoint) {
       changeHpHud(this.healPoint, this.standartHealPoint, this.game.huds.hp);
       bufferHp = this.healPoint;
@@ -57,6 +86,10 @@ export class Player extends AliveObject {
         this.game.mouseStatus.y
       );
     }
+    //////!!101
+    this.isDirectionMirrored = false;
+    if (this.game.mouseStatus.x < this.collisionX)
+      this.isDirectionMirrored = true;
 
     this.dx = this.game.mouseStatus.x - this.collisionX;
     this.dy = this.game.mouseStatus.y - this.collisionY;

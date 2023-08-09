@@ -7,7 +7,7 @@ export class PickableWeapon extends NonStaticGameObjects {
       game,
       Math.random() * (game.spawnX - -game.spawnX) + -game.spawnX,
       Math.random() * (game.spawnY - -game.spawnY) + -game.spawnY,
-      10
+      2.5 * game.pointScale
     );
     this.armamentProto = armamentProto;
   }
@@ -16,7 +16,7 @@ export class PickableWeapon extends NonStaticGameObjects {
     super.draw(context, "gray", 0.8);
   }
   update(weaponHoldersArray) {
-    super.update( [...this.game.boxes, ...this.game.obstacles])
+    super.update([...this.game.boxes, ...this.game.obstacles]);
     weaponHoldersArray.forEach((holder) => {
       if (holder === this) return;
       const collisionStatus = GameObject.checkCollision(this, holder);
