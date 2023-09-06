@@ -21,6 +21,15 @@ export class GameObject {
     this.spriteY = this.collisionY - this.height * 0.5;
   }
   draw(context, fillStyle = "gray", alfa = 0.2) {
+    if (this.image != undefined) {
+      context.drawImage(
+        this.image,
+        this.spriteX,
+        this.spriteY,
+        this.width,
+        this.height
+      );
+    }else{
     context.save();
     context.fillStyle = fillStyle; //
     context.globalAlpha = alfa;
@@ -41,16 +50,8 @@ export class GameObject {
     context.beginPath();
 
     context.save();
-
-    if (this.image != undefined) {
-      context.drawImage(
-        this.image,
-        this.spriteX,
-        this.spriteY,
-        this.width,
-        this.height
-      );
     }
+    
     context.restore();
   }
 

@@ -25,7 +25,7 @@ export class AliveObject extends NonStaticGameObjects {
     this.aggressive = false;
     this.scared = false;
     this.target = null;
-    this.iq = 2;
+    this.iq = Math.floor(Math.random() * 3);
     this.defaultDirection = 0;
     this.scorepPofitability = Math.random() * 15 + 5;
     this.isDirectionMirrored = false
@@ -33,10 +33,10 @@ export class AliveObject extends NonStaticGameObjects {
 
   static catchTarget(catchingUp, target, speed, atack = true) {
 
-    
+
     let approachDistance =
       catchingUp.gun == null ? 0 : catchingUp.gun.shotDistance * 0.8;
-   
+
 
     const dx = target.collisionX - catchingUp.collisionX;
     const dy = target.collisionY - catchingUp.collisionY;

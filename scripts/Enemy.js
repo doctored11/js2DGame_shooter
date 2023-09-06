@@ -18,13 +18,48 @@ export class Enemy extends AliveObject {
     this.gun = null;
     this.armor = 0;
     this.attentiveRadius = attentiveRadius;
+    this.isDirectionMirrored = false
+
+    this.spriteX = this.collisionX - this.width * 0.5;
+    this.spriteY = this.collisionY - this.height * 0.5;
+
+    this.image = new Image();
+    this.image.src = `../source/EnemySkin/enemy${this.iq}.png`;
+    this.imageGun = new Image();
+    this.imageGun.src = "../source/EnemySkin/enemyGun.png";
+
+
   }
   draw(context, moveAngle = 0) {
-    super.draw(context, "green", 0.8);
-    if (this.gun != null) this.gun.draw(context, this, moveAngle);
+    // super.draw(context, "green", 0.8);
+
+    if (this.isDirectionMirrored) {
+      context.save();
+      context.scale(-1, 1); // Отражение по горизонтали
+      context.drawImage(
+        this.image,
+        -this.spriteX - this.width, // начальная позиция по X на изображении (сдвиг влево)
+        this.spriteY,
+        this.width,
+        this.height
+      );
+      context.restore();
+    } else {
+      context.drawImage(
+        this.image,
+        this.spriteX,
+        this.spriteY,
+        this.width,
+        this.height
+      );
+    }
+    if (this.gun != null) this.gun.draw(context, this, moveAngle,this.imageGun);
   }
   update(context) {
     super.update([this.game.player, ...this.game.globalSolidObjects]);
+    this.spriteX = this.collisionX - this.width * 0.5;
+    this.spriteY = this.collisionY - this.height * 0.5;
+
 
     if (this.healPoint <= 0) {
       this.destroy(this.game.enemies);
@@ -33,14 +68,16 @@ export class Enemy extends AliveObject {
     const angleMove = AliveObject.idleStatusCheck(this.attentiveRadius, this, [
       this.game.player,
     ]);
+    this.isDirectionMirrored = false;
+    if (angleMove < 0.5) //?!!!!!!!!!!!!
+      this.isDirectionMirrored = true;
 
     if (
       this.gun != null &&
       (NonStaticGameObjects.getDistance(this, this.game.player) <
-      this.gun.shotDistance ||
+        this.gun.shotDistance ||
         this.aggressive)
     ) {
-      console.log('43 shot _ '+ NonStaticGameObjects.getDistance(this, this.game.player)+ "  |  "+ this.gun.shotDistance + "  |  "+this.aggressive)
 
       this.gun.shot(this, angleMove);
     }

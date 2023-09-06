@@ -52,7 +52,7 @@ export class Game {
     this.numberOfEnemies =this.numberOfObstacles * 0.6 + 1;
     this.enemies = [];
 
-    this.numberOfPickableWeapon = this.numberOfObstacles * 0.2 + 1;
+    this.numberOfPickableWeapon = this.numberOfObstacles * 0.3 + 1;
     this.pickableWeapons = [];
 
     this.numberOfMedKits = this.numberOfEnemies / 4 + 1;

@@ -9,7 +9,8 @@ export class Armament {
     bulletsInShot = 1,
     shotInterval = 200,
     shotDistance = 600,
-    shotMode = "single"
+    shotMode = "single",
+    type ="enemy"
   ) {
     this.game = game;
     this.shotDamage = shotDamage;
@@ -22,19 +23,20 @@ export class Armament {
 
     this.lastShotTime = 0;
 
-    this.image = new Image();
-    this.image.src = "../source/PlayerSkin/playerGun.png";
+   
     this.spriteHeight = 25 * game.pointScale;
   }
   draw(
     context,
     owner,
     moveAngle,
+    image,
     fillStyle = "black",
     alfa = 1,
     width = 50,
     height = 13
   ) {
+   
     let angle = moveAngle;
     if (owner == this.game.player) {
       angle = this.game.mouseStatus.liveAngle;
@@ -54,7 +56,7 @@ export class Armament {
       context.scale(1, -1); // Отражение по горизонтали
 
       context.drawImage(
-        this.image,
+        image,
         0,
         0 - this.spriteHeight,
         this.spriteHeight,
@@ -63,7 +65,7 @@ export class Armament {
 
       context.restore();
     } else {
-      context.drawImage(this.image, 0, 0, this.spriteHeight, this.spriteHeight);
+      context.drawImage(image, 0, 0, this.spriteHeight, this.spriteHeight);
     }
 
     // Смещение

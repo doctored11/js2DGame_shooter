@@ -38,10 +38,10 @@ export class MovingBarrier extends NonStaticGameObjects {
   }
   destroy(arrayOfAlivesType) {
     super.destroy(arrayOfAlivesType);
-    if (this.hasPercentChance(5)) {
+    if (this.hasPercentChance(15)) {
       const ad = new PickableArmorPoint(this.game, this.collisionX, this.collisionY);
       this.game.armorDrop.push(ad);
-    } else if (this.hasPercentChance(20)) {
+    } else if (this.hasPercentChance(45)) {
       const mk = new PickableHealPoints(this.game, this.collisionX, this.collisionY);
       this.game.medKits.push(mk);
     }

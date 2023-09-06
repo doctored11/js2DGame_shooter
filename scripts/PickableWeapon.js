@@ -7,15 +7,20 @@ export class PickableWeapon extends NonStaticGameObjects {
       game,
       Math.random() * (game.spawnX - -game.spawnX) + -game.spawnX,
       Math.random() * (game.spawnY - -game.spawnY) + -game.spawnY,
-      2.5 * game.pointScale
+      2.5 * game.pointScale,10* game.pointScale
     );
     this.armamentProto = armamentProto;
+   
+    this.image = new Image();
+    this.image.src = "../source/environment/armament.png";
   }
 
   draw(context) {
     super.draw(context, "gray", 0.8);
   }
   update(weaponHoldersArray) {
+    this.spriteX = this.collisionX - this.width * 0.5;
+    this.spriteY = this.collisionY - this.height * 0.5;
     super.update([...this.game.boxes, ...this.game.obstacles]);
     weaponHoldersArray.forEach((holder) => {
       if (holder === this) return;

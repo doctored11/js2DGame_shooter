@@ -1,7 +1,7 @@
 import { AliveObject } from "./AliveObject.js";
 import { Armament } from "./Armament.js";
 import { changeText } from "./domHud.js";
-import { changeHpHud,changeArmorHud } from "./domHud.js";
+import { changeHpHud, changeArmorHud } from "./domHud.js";
 
 let bufferHp = 0;
 let bufferArmor = 0;
@@ -11,7 +11,7 @@ const abilityBack2 = document.getElementById("ability-2");
 export class Player extends AliveObject {
   constructor(game) {
     super(game, game.width / 2, game.height / 2, 5 * game.pointScale, 3);
-    this.gun = new Armament(game);
+    this.gun = new Armament(game, 20, 15, 1, 200, 500, "single", "player");
 
     this.routePoints = [];
     this.isNavigate = false;
@@ -22,7 +22,7 @@ export class Player extends AliveObject {
     this.jumpBoost = 12;
     this.jumpMaxDistance = this.game.gameWidth * 0.05;
     this.standartHealPoint = 100;
-    this.armor = 99999;
+    this.armor = 1;
     this.healPoint = this.standartHealPoint;
     this.modeAbility = "jump";
 
@@ -31,15 +31,17 @@ export class Player extends AliveObject {
 
     this.image = new Image();
     this.image.src = "../source/PlayerSkin/player.png";
+    this.imageGun = new Image();
+    this.imageGun.src = "../source/PlayerSkin/playerGun.png";
     // this.spriteHeight = 250;
 
-    this.modeValues = [null, "navigate", "jump", "__3"];
+    this.modeValues = [null, "navigate", "jump"];
   }
 
   draw(context) {
     const fillPercentage = (3 - this.routePoints.length) / 3 * 100
     abilityBack1.style.height = `${fillPercentage}%`;
-    const jumpTimerPercentage = 100-(this.game.jumpInterval - this.game.jumpTimer) / this.game.jumpInterval * 100;
+    const jumpTimerPercentage = 100 - (this.game.jumpInterval - this.game.jumpTimer) / this.game.jumpInterval * 100;
     abilityBack2.style.height = `${jumpTimerPercentage}%`;
 
     if (this.isJumping && this.game.jumpTimer > this.game.jumpInterval)
@@ -74,7 +76,7 @@ export class Player extends AliveObject {
         this.height
       );
     }
-    this.gun.draw(context, this);
+    this.gun.draw(context, this,undefined,this.imageGun);
   }
   update() {
     this.spriteX = this.collisionX - this.width * 0.5;
