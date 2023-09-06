@@ -10,18 +10,38 @@
     <div class="cursor"></div>
     <div class="point"></div>
     <canvas class="canvas game-field" id="game-field"></canvas>
-    <div class="progress-bar" id="progress-bar">
-      <div class="progress">
-        <div class="progress__fill" id="progress__fill"></div>
-        <div class="progress__hp heal-points" id="heal-points-bar">100</div>
+    <div class="ui-block">
+      <div class="progress-bar" id="progress-bar">
+        <div class="progress">
+          <div class="progress__fill" id="progress__fill"></div>
+          <div class="progress__hp heal-points" id="heal-points-bar">100</div>
+        </div>
+      </div>
+      <div class="progress-armor-bar" id="progress-armor-bar">
+        <div class="progress">
+          <div class="progress__fill" id="progress__fill"></div>
+          <div class="progress__armor armor-points" id="armor-points-bar">
+            100
+          </div>
+        </div>
       </div>
     </div>
     <div class="score" id="score">0</div>
     <div class="ability-block">
       <ul class="abilities">
-        <li class="abilities__block  abilities__block-1">маршрут</li>
-        <li class="abilities__block  abilities__block-2">прыжок</li>
-        <li class="abilities__block  abilities__block-3">способность 3</li>
+        <li class="abilities__block abilities__block-1">
+          маршрут
+
+          <div class="cabilities__card">
+            <div class="abilities__background" id="ability-1"></div>
+          </div>
+        </li>
+        <li class="abilities__block abilities__block-2">прыжок
+          <div class="cabilities__card">
+            <div class="abilities__background" id="ability-2"></div>
+          </div>
+        </li>
+        <li class="abilities__block abilities__block-3">способность 3</li>
       </ul>
     </div>
 

@@ -8,8 +8,9 @@ import { addCastomMouse } from "./domHud.js";
 
 window.addEventListener("load", function () {
   const hpProgressBar = document.getElementById("progress-bar");
+  const armorProgressBar = document.getElementById("progress-armor-bar");
   const scoreEl = document.getElementById("score");
-  const HudObj = { hp: hpProgressBar, score: scoreEl };
+  const HudObj = { hp: hpProgressBar, score: scoreEl, armor:armorProgressBar };
 
   const canvas = document.getElementById("game-field");
   const context = canvas.getContext("2d");

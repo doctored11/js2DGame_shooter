@@ -13,12 +13,19 @@ body {
   height: 100%;
 }
 
-.progress-bar {
+.ui-block {
   position: absolute;
+  display: flex;
+  flex-direction: column;
   left: 1%;
   bottom: 2%;
   width: 12%;
-  height: 3%;
+  height: 7%;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 40%;
 }
 .progress {
   position: relative;
@@ -29,11 +36,22 @@ body {
   overflow: hidden;
   border: 4px solid black;
 }
+.progress-armor-bar {
+  width: 100%;
+  height: 10%;
+}
+.progress-armor-bar .progress {
+  border-top: none;
+}
 .progress__fill {
   width: 100%;
   height: 100%;
   background-color: red;
   transition: all cubic-bezier(0.215, 0.61, 0.355, 1) 0.4s;
+}
+
+.progress-armor-bar .progress__fill {
+  background-color: blue;
 }
 .progress__hp {
   position: absolute;
@@ -50,6 +68,7 @@ body {
   font: bold 18px "Quicksand", sand-serif;
   transition: all cubic-bezier(0.215, 0.61, 0.355, 1) 0.4s;
 }
+
 
 /* Стили для кастомного курсора -*/
 .cursor {
@@ -159,7 +178,22 @@ body {
 
   border: 4px solid #21821eae;
   border-radius: 5px;
+  position: relative;
 }
 .abilities__block.--active {
   outline: rgba(3, 244, 3, 0.96) solid 3px;
+  z-index: 3;
+}
+.cabilities__card {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  display: flex;
+  flex-direction: column-reverse;
+  top: 0;
+  left: 0;
+}
+.abilities__background {
+  background-color: #67e76059;
+  width: 100%;
 }

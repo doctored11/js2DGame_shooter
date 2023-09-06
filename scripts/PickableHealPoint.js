@@ -2,15 +2,15 @@ import { NonStaticGameObjects } from "./NonStaticGameObject.js";
 import { GameObject } from "./GameObject.js";
 
 export class PickableHealPoints extends NonStaticGameObjects {
-  constructor(game) {
+  constructor(game, x = Math.random() * (game.spawnX - -game.spawnX) + -game.spawnX, y = Math.random() * (game.spawnY - -game.spawnY) + -game.spawnY) {
     super(
       game,
-      Math.random() * (game.spawnX - -game.spawnX) + -game.spawnX,
-      Math.random() * (game.spawnY - -game.spawnY) + -game.spawnY,
+      x,
+      y,
       20
     );
     this.healValue = Math.random() * (40 - 5) + 5;
-    this.scorepPofitability = 1;
+    this.scorePofitability = 1;
   }
   draw(context) {
     super.draw(context, "blue", 0.2);
@@ -30,9 +30,9 @@ export class PickableHealPoints extends NonStaticGameObjects {
   }
   destroy(arrOfSameTypes) {
     const indexInLocal = arrOfSameTypes.indexOf(this);
-    
+
 
     arrOfSameTypes.splice(indexInLocal, 1);
-   
+
   }
 }

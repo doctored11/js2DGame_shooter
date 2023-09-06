@@ -16,6 +16,18 @@ export function changeHpHud(hpNow, hpFull, hudEl) {
 
   changeText(hpEl, Math.ceil(hpNow));
 }
+
+export function changeArmorHud(armorNow, hudEl, armorFull = 1000) {
+  if (armorNow < 0) armorNow = 0;
+
+  const fillEl = hudEl.querySelector(".progress__fill");
+  const armorEl = hudEl.querySelector(".progress__armor");
+
+  const armorPercent = (armorNow * 100) / armorFull;
+  fillEl.style.width = armorPercent + "%";
+
+  changeText(armorEl, Math.ceil(armorNow));
+}
 export function changeScoreHud(score, hudEl) {
   if (score < 0) score = 0;
 

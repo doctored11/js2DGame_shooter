@@ -1,14 +1,18 @@
 import { AliveObject } from "./AliveObject.js";
 import { Armament } from "./Armament.js";
 import { changeText } from "./domHud.js";
-import { changeHpHud } from "./domHud.js";
+import { changeHpHud,changeArmorHud } from "./domHud.js";
 
 let bufferHp = 0;
+let bufferArmor = 0;
 
+const abilityBack1 = document.getElementById("ability-1");
+const abilityBack2 = document.getElementById("ability-2");
 export class Player extends AliveObject {
   constructor(game) {
     super(game, game.width / 2, game.height / 2, 5 * game.pointScale, 3);
     this.gun = new Armament(game);
+
     this.routePoints = [];
     this.isNavigate = false;
     this.isJumping = false;
@@ -17,7 +21,8 @@ export class Player extends AliveObject {
     this.distanceTraveled = 0;
     this.jumpBoost = 12;
     this.jumpMaxDistance = this.game.gameWidth * 0.05;
-    this.standartHealPoint = 10000;
+    this.standartHealPoint = 100;
+    this.armor = 99999;
     this.healPoint = this.standartHealPoint;
     this.modeAbility = "jump";
 
@@ -32,6 +37,11 @@ export class Player extends AliveObject {
   }
 
   draw(context) {
+    const fillPercentage = (3 - this.routePoints.length) / 3 * 100
+    abilityBack1.style.height = `${fillPercentage}%`;
+    const jumpTimerPercentage = 100-(this.game.jumpInterval - this.game.jumpTimer) / this.game.jumpInterval * 100;
+    abilityBack2.style.height = `${jumpTimerPercentage}%`;
+
     if (this.isJumping && this.game.jumpTimer > this.game.jumpInterval)
       this.paintJumpLine(context);
     else if (this.routePoints.length > 0) {
@@ -72,6 +82,10 @@ export class Player extends AliveObject {
     if (bufferHp != this.healPoint) {
       changeHpHud(this.healPoint, this.standartHealPoint, this.game.huds.hp);
       bufferHp = this.healPoint;
+    }
+    if (bufferArmor != this.armor) {
+      changeArmorHud(this.armor, this.game.huds.armor);
+      bufferArmor = this.armorPoint;
     }
     if (this.healPoint <= 0) this.game.gameEnd = true;
 

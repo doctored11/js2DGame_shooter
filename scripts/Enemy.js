@@ -13,9 +13,10 @@ export class Enemy extends AliveObject {
     this.collisionY =
       Math.random() * (this.game.spawnY - -this.game.spawnY) +
       -this.game.spawnY;
-   
-    this.speed = Math.random() * this.game.player.speedModifier + this.game.player.speedModifier/10;
+
+    this.speed = Math.random() * this.game.player.speedModifier + this.game.player.speedModifier / 10;
     this.gun = null;
+    this.armor = 0;
     this.attentiveRadius = attentiveRadius;
   }
   draw(context, moveAngle = 0) {
@@ -32,13 +33,15 @@ export class Enemy extends AliveObject {
     const angleMove = AliveObject.idleStatusCheck(this.attentiveRadius, this, [
       this.game.player,
     ]);
+
     if (
       this.gun != null &&
       (NonStaticGameObjects.getDistance(this, this.game.player) <
-        this.attentiveRadius ||
+      this.gun.shotDistance ||
         this.aggressive)
     ) {
-      
+      console.log('43 shot _ '+ NonStaticGameObjects.getDistance(this, this.game.player)+ "  |  "+ this.gun.shotDistance + "  |  "+this.aggressive)
+
       this.gun.shot(this, angleMove);
     }
     this.draw(context, angleMove);

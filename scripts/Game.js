@@ -5,6 +5,7 @@ import { MovingBarrier } from "./MovingBarrier.js";
 import { Armament } from "./Armament.js";
 import { PickableWeapon } from "./PickableWeapon.js";
 import { PickableHealPoints } from "./PickableHealPoint.js";
+import { PickableArmorPoint } from "./PickableArmorPoint.js"
 import { changeScoreHud } from "./domHud.js";
 import {
   setAttackMouse,
@@ -24,7 +25,7 @@ export class Game {
     this.previousScore = 0;
     this.gameEnd = false;
 
-    this.gameWidth = 6000;
+    this.gameWidth = 6500;
     this.gameHeight = this.gameWidth;
 
     this.spawnX = (this.gameWidth * 0.8) / 2;
@@ -48,7 +49,7 @@ export class Game {
     this.numberOfBox = this.numberOfObstacles * 0.8;
     this.boxes = [];
 
-    this.numberOfEnemies = this.numberOfObstacles * 0.6 + 1;
+    this.numberOfEnemies =this.numberOfObstacles * 0.6 + 1;
     this.enemies = [];
 
     this.numberOfPickableWeapon = this.numberOfObstacles * 0.2 + 1;
@@ -56,6 +57,7 @@ export class Game {
 
     this.numberOfMedKits = this.numberOfEnemies / 4 + 1;
     this.medKits = [];
+    this.armorDrop = []
 
     this.activeBullets = [];
 
@@ -77,9 +79,6 @@ export class Game {
     let accumulatedDeltaY = 0;
     const scrollThreshold = 100; // Порог прокрутки, который нужно превысить, чтобы переключить элемент
 
-    // Функция для вывода текущего элемента в консоль
-
-    // Функция обработки события колесика мыши
 
     // Привязываем обработчик события колесика мыши к документу
     this.canvas.addEventListener("wheel", (event) => {
@@ -87,16 +86,15 @@ export class Game {
 
       // Проверяем, превысила ли накопленная прокрутка порог
       if (Math.abs(accumulatedDeltaY) >= scrollThreshold) {
-        // Определяем направление прокрутки колесика мыши
+
         if (accumulatedDeltaY > 0) {
-          // Прокрутка вниз, переходим к следующему элементу
+
           currentIndex = (currentIndex + 1) % values.length;
         } else {
-          // Прокрутка вверх, переходим к предыдущему элементу
+
           currentIndex = (currentIndex - 1 + values.length) % values.length;
         }
 
-        // Сбрасываем накопленную прокрутку
         accumulatedDeltaY = 0;
 
         this.changeModValue(currentIndex);
@@ -204,7 +202,6 @@ export class Game {
     this.canvas.addEventListener("contextmenu", (event) => {
       event.preventDefault();
 
-      //стрельба видимо
       removeAttackMouse();
       this.player.gun.shot(this.player);
     });
@@ -217,7 +214,9 @@ export class Game {
 
   render(context, deltaTime) {
     if (this.gameEnd) {
-      alert("gameOver");
+      // alert("gameOver");
+      this.gameRestart();
+      this.gameEnd = false;
       return;
     }
     if (this.score != this.previousScore) {
@@ -252,9 +251,11 @@ export class Game {
         ...this.obstacles,
         ...this.boxes,
         ...this.medKits,
+        ...this.armorDrop,
         ...this.enemies,
         ...this.pickableWeapons,
       ];
+      
 
       allObjects.sort((a, b) => a.collisionY - b.collisionY);
 
@@ -267,6 +268,9 @@ export class Game {
           obj.update();
           obj.draw(context);
         } else if (obj instanceof PickableHealPoints) {
+          obj.update([this.player, ...this.enemies]);
+          obj.draw(context);
+        } else if (obj instanceof PickableArmorPoint) {
           obj.update([this.player, ...this.enemies]);
           obj.draw(context);
         } else if (obj instanceof Enemy) {
@@ -294,10 +298,10 @@ export class Game {
     this.jumpTimer += deltaTime;
   }
   addPickableWeapon() {
-    const damage = getRandomNumber(0.1, 80);
+    const damage = getRandomNumber(0.02, 70);
     const speed = getRandomNumber(0.3, 25);
     const distance = getRandomNumber(200, 1000);
-    const interval = getRandomNumber(20, 1100);
+    const interval = getRandomNumber(25, 1100);
     const weapon = new Armament(this, damage, speed, 1, interval, distance);
     const pickableWeaponProto = new PickableWeapon(this, weapon);
 
@@ -318,6 +322,10 @@ export class Game {
   addMedKit() {
     const mk = new PickableHealPoints(this);
     this.medKits.push(mk);
+  }
+  addArmorDrop(x, y) {
+    const ad = new PickableArmorPoint(this, x, y);
+    this.armorDrop.push(ad);
   }
 
   init() {
@@ -387,6 +395,20 @@ export class Game {
     );
 
     context.restore();
+  }
+  gameRestart() {
+    this.boxes = [];
+    this.enemies = [];
+    this.activeBullets = [];
+    this.player = new Player(this);
+    this.globalSolidObjects = [];
+    this.obstacles = [];
+    this.pickableWeapons = [];
+    this.medKits = [];
+    this.armorDrop = [];
+    this.init();
+
+
   }
 }
 function getRandomNumber(min, max) {

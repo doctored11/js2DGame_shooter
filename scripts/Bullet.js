@@ -11,7 +11,7 @@ export class Bullet extends NonStaticGameObjects {
     shotDamage = 10,
     shotSpeed = 10,
     shotDistanse = 300,
-    collisionRadius = game.pointScale *1.5,
+    collisionRadius = game.pointScale * 1.5,
     endurance = 10
   ) {
     super(game, posX, posY, collisionRadius);
@@ -28,16 +28,17 @@ export class Bullet extends NonStaticGameObjects {
       const collisionStatus = GameObject.checkCollision(this, obj);
 
       if (collisionStatus.status) {
-        obj.healPoint -= this.damage;
+        obj.healPoint -= obj.armor !== undefined && obj.armor > 0 ? this.damage * 0.04 : this.damage;
+        obj.armor = obj.armor < 0 ? 0 : obj.armor - this.damage * 0.3
         obj.aggressive = true;
         this.destroy();
       }
     });
     this.bulletMove();
-    super.update([ ...this.game.obstacles]);
+    super.update([...this.game.obstacles]);
   }
 
-  // Метод для установки направления пули
+
   setDirection(directionX, directionY) {
     const distance = Math.hypot(directionX, directionY);
     if (distance !== 0) {
@@ -46,22 +47,20 @@ export class Bullet extends NonStaticGameObjects {
     }
   }
 
-  // Метод для обновления позиции пули и пройденного расстояния
+
   bulletMove() {
     if (this.distanceTraveled < this.shotDistanse) {
       this.collisionX += this.directionX * this.speed;
       this.collisionY += this.directionY * this.speed;
       this.distanceTraveled += this.speed;
     } else {
-      // Уничтожить пулю, если она преодолела максимальное расстояние
+  
       this.destroy();
     }
   }
 
-  // Метод для уничтожения пули
-  destroy() {
-    // Вы можете удалить пулю из игры или выполнить другие действия здесь
-    // Например, вы можете удалить пулю из массива активных пуль
+  destroy() { //желатьльно через пул потом пули реализовать
+  
     const index = this.game.activeBullets.indexOf(this);
     if (index !== -1) {
       this.game.activeBullets.splice(index, 1);
