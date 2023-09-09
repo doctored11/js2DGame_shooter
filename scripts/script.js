@@ -10,7 +10,7 @@ window.addEventListener("load", function () {
   const hpProgressBar = document.getElementById("progress-bar");
   const armorProgressBar = document.getElementById("progress-armor-bar");
   const scoreEl = document.getElementById("score");
-  const HudObj = { hp: hpProgressBar, score: scoreEl, armor:armorProgressBar };
+  const HudObj = { hp: hpProgressBar, score: scoreEl, armor: armorProgressBar };
 
   const canvas = document.getElementById("game-field");
   const context = canvas.getContext("2d");
@@ -22,6 +22,15 @@ window.addEventListener("load", function () {
   context.lineWidth = 5;
 
   const game = new Game(canvas, HudObj);
+
+
+  const blockMenu = document.querySelector('.block-menu');
+  const restartButton = document.querySelector('.restart-btn'); //😬
+  displayBestScore();
+  restartButton.addEventListener('click', function () {
+    game.gameRestart(); toggleBlockMenuVisibility();
+
+  })
   game.init();
 
   console.log(game);
@@ -53,5 +62,26 @@ window.addEventListener("load", function () {
   addCastomMouse(canvas);
   //
   //
-  //
+  function toggleBlockMenuVisibility() {
+    blockMenu.classList.toggle('display-none');
+  }
+ 
+
+
 });
+export function displayBestScore() {
+
+  const bestScore = localStorage.getItem("score");
+
+  const endTxtElement = document.querySelector('.end-txt');
+
+  if (endTxtElement) {
+    if (bestScore !== null) {
+
+      endTxtElement.textContent = "Лучший счет: " + bestScore;
+    } else {
+
+      endTxtElement.textContent = "Лучший счет не найден.";
+    }
+  }
+}

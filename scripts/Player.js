@@ -24,7 +24,7 @@ export class Player extends AliveObject {
     this.standartHealPoint = 100;
     this.armor = 1;
     this.healPoint = this.standartHealPoint;
-    this.modeAbility = "jump";
+    this.modeAbility = "navigate";
 
     this.spriteX = this.collisionX - this.width * 0.5;
     this.spriteY = this.collisionY - this.height * 0.5;

@@ -7,6 +7,7 @@ import { PickableWeapon } from "./PickableWeapon.js";
 import { PickableHealPoints } from "./PickableHealPoint.js";
 import { PickableArmorPoint } from "./PickableArmorPoint.js"
 import { changeScoreHud } from "./domHud.js";
+import { displayBestScore } from "./script.js";
 import {
   setAttackMouse,
   removeAttackMouse,
@@ -14,6 +15,8 @@ import {
   removeInteractionMouse,
   updateAbility,
 } from "./domHud.js";
+
+
 export class Game {
   constructor(canvas, hudsObj) {
     this.canvas = canvas;
@@ -49,7 +52,7 @@ export class Game {
     this.numberOfBox = this.numberOfObstacles * 0.8;
     this.boxes = [];
 
-    this.numberOfEnemies =this.numberOfObstacles * 0.6 + 1;
+    this.numberOfEnemies = this.numberOfObstacles * 0.6 + 1;
     this.enemies = [];
 
     this.numberOfPickableWeapon = this.numberOfObstacles * 0.3 + 1;
@@ -73,6 +76,7 @@ export class Game {
       action: null,
       liveAngle: 0,
     };
+
 
     const values = this.player.modeValues;
     let currentIndex = 0;
@@ -214,9 +218,13 @@ export class Game {
 
   render(context, deltaTime) {
     if (this.gameEnd) {
+      saveScore(this.score);
+      displayBestScore();
+      document.querySelector('.block-menu').classList.remove('display-none');
+
       // alert("gameOver");
-      this.gameRestart();
-      this.gameEnd = false;
+
+
       return;
     }
     if (this.score != this.previousScore) {
@@ -255,7 +263,7 @@ export class Game {
         ...this.enemies,
         ...this.pickableWeapons,
       ];
-      
+
 
       allObjects.sort((a, b) => a.collisionY - b.collisionY);
 
@@ -397,6 +405,9 @@ export class Game {
     context.restore();
   }
   gameRestart() {
+    this.gameEnd = false;
+    this.score = 0;
+
     this.boxes = [];
     this.enemies = [];
     this.activeBullets = [];
@@ -410,7 +421,27 @@ export class Game {
 
 
   }
+
+
 }
 function getRandomNumber(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+///
+function saveScore(score) {
+
+  if (typeof (Storage) !== "undefined") {
+
+    const oldScore = parseInt(localStorage.getItem("score")) || 0;
+
+
+    if (score > oldScore) {
+
+      localStorage.setItem("score", score);
+    }
+  }
+
+}
+
+
+
