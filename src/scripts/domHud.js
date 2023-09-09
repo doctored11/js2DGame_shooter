@@ -1,3 +1,5 @@
+import '../styles/style.css'; 
+
 export function changeText(el, text) {
   text += "";
   el.textContent = text;

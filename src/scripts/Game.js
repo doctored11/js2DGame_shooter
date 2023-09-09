@@ -8,6 +8,8 @@ import { PickableHealPoints } from "./PickableHealPoint.js";
 import { PickableArmorPoint } from "./PickableArmorPoint.js"
 import { changeScoreHud } from "./domHud.js";
 import { displayBestScore } from "./script.js";
+import '../styles/style.css'; 
+
 import {
   setAttackMouse,
   removeAttackMouse,

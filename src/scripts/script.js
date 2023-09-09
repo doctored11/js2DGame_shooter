@@ -5,6 +5,8 @@ import { MovingBarrier } from "./MovingBarrier.js";
 import { Game } from "./Game.js";
 import { changeText } from "./domHud.js";
 import { addCastomMouse } from "./domHud.js";
+import '../styles/style.css'; 
+
 
 window.addEventListener("load", function () {
   const hpProgressBar = document.getElementById("progress-bar");
